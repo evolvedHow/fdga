@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Fair Districts GA — Georgia Explorer</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="description" content="Explore Georgia redistricting maps and demographic data" />
+
+  <link rel="icon" type="image/png" href="/img/FairDistrictsGA_icon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+  <!-- Mapbox GL JS v3 -->
+  <link href='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css' rel='stylesheet'/>
+  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css' type='text/css'/>
+
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- ── Top Bar ─────────────────────────────────────────────── -->
+  <header id="topbar">
+    <a href="https://www.fairdistrictsga.org/" target="_blank" id="logo-link">
+      <img src="/img/fdga_logo.png" alt="Fair Districts GA" id="logo">
+    </a>
+    <span id="app-title">Georgia Explorer</span>
+
+    <div id="controls">
+      <!-- Chamber -->
+      <div class="control-group">
+        <label class="control-label" for="level">Chamber</label>
+        <select id="level" class="ctrl-select">
+          <option value="">— Select —</option>
+          <optgroup label="State Senate">
+            <option value="senate"      data-version="enacted_2014">Senate 2014 (Pre-redistricting)</option>
+            <option value="senate_p3"   data-version="enacted_2021">Senate 2021 Enacted</option>
+            <option value="senate_r1"   data-version="enacted_2024" selected>Senate 2024 Enacted</option>
+            <option value="senate_p1"   data-version="proposed_dem">Senate Proposed (Dem)</option>
+            <option value="senate_p2"   data-version="proposed_rep">Senate Proposed (Rep)</option>
+            <option value="senate_r2"   data-version="remedy_2">Senate Remedy Map 2</option>
+          </optgroup>
+          <optgroup label="State House">
+            <option value="house"       data-version="enacted_2015">House 2015 (Pre-redistricting)</option>
+            <option value="house_p3"    data-version="enacted_2021">House 2021 Enacted</option>
+            <option value="house_r1"    data-version="enacted_2024">House 2024 Enacted</option>
+            <option value="house_p1"    data-version="proposed_dem">House Proposed (Dem)</option>
+            <option value="house_p2"    data-version="proposed_rep">House Proposed (Rep)</option>
+            <option value="house_r2"    data-version="remedy_2">House Remedy Map 2</option>
+          </optgroup>
+          <optgroup label="US Congress">
+            <option value="congress"            data-version="enacted_2012">Congress 2012 (Pre-redistricting)</option>
+            <option value="congress_proposed"   data-version="enacted_2021">Congress 2021 Enacted</option>
+            <option value="congress_proposed_3" data-version="enacted_2023">Congress 2023 Enacted</option>
+            <option value="congress_r1"         data-version="enacted_2024">Congress 2024 Enacted</option>
+            <option value="congress_proposed_2" data-version="proposed_dem">Congress Proposed (Dem)</option>
+            <option value="congress_r2"         data-version="remedy_2">Congress Remedy Map 2</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- Demographic overlay -->
+      <div class="control-group">
+        <label class="control-label" for="measure">Overlay</label>
+        <select id="measure" class="ctrl-select">
+          <option value="">— None —</option>
+          <option value="pct_bvp">Black VAP %</option>
+          <option value="pct_hvp">Hispanic VAP %</option>
+          <option value="pct_avp">Asian VAP %</option>
+          <option value="pct_bp_">Minority VAP %</option>
+          <option value="partisan">Partisan Lean</option>
+        </select>
+      </div>
+
+      <!-- Toggles -->
+      <div class="control-group toggles">
+        <label class="toggle-item">
+          <input type="checkbox" id="show_district"> District fill
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="show_county"> Counties
+        </label>
+        <label class="toggle-item">
+          <input type="checkbox" id="show_city"> Cities
+        </label>
+      </div>
+
+      <!-- Enhanced Explorer link -->
+        <a href="/frontend/ui_elections.html" target="_blank" id="enhanced-btn" title="Open enhanced analytics dashboard">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Analytics
+        </a>
+
+      <!-- AI Chat button -->
+      <button id="chat-toggle" title="Ask AI a question about this map">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        Ask AI
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Map ───────────────────────────────────────────────────── -->
+  <div id="map-container">
+    <div id="map"></div>
+
+    <!-- District tooltip sidebar -->
+    <div id="sidebar">
+      <div id="tooltip-content"></div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend-container">
+      <div id="legend-title"></div>
+      <div id="legend-swatches"></div>
+    </div>
+  </div>
+
+  <!-- ── AI Chat Panel ─────────────────────────────────────────── -->
+  <div id="chat-panel" class="hidden">
+    <div id="chat-header">
+      <span>Ask about this map</span>
+      <button id="chat-close">✕</button>
+    </div>
+    <div id="chat-messages">
+      <div class="msg ai">
+        <div class="msg-bubble">
+          Hi! I can answer questions about Georgia redistricting data.<br><br>
+          Try: <em>"Which Senate districts have over 50% Black VAP in the 2024 map?"</em>
+        </div>
+      </div>
+    </div>
+    <div id="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask a question…" autocomplete="off">
+      <button id="chat-send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <div id="chat-status"></div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js'></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js'></script>
+
+<script src="/js/config.js"></script>
+<script src="/js/map.js"></script>
+<script src="/js/chat.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,29 @@
+[project]
+name = "fdga"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "apscheduler>=3.11.2",
+    "crewai>=1.9.3",
+    "duckdb>=1.4.4",
+    "fastapi>=0.135.1",
+    "geopandas>=1.1.2",
+    "httpx>=0.28.1",
+    "langchain-google-genai>=4.2.1",
+    "langchain-groq>=1.1.2",
+    "langchain-ollama>=1.0.1",
+    "litellm>=1.75.3",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.2",
+    "openpyxl>=3.1.5",
+    "pandas>=3.0.1",
+    "pyarrow>=23.0.1",
+    "pydantic[email]>=2.11.10",
+    "pytest>=9.0.2",
+    "python-dotenv>=1.1.1",
+    "python-telegram-bot>=22.6",
+    "shapley>=1.0.2",
+    "uvicorn>=0.41.0",
+]

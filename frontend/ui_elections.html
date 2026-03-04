@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fair Districts GA — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<style>
+:root {
+  --black:#0d0d0d;--red:#c90000;--bg:#f4f2ee;--panel:#ffffff;
+  --border:#e2ddd7;--text:#1a1a1a;--muted:#777;
+  --dem:#2563eb;--rep:#dc2626;--dem-bg:#dbeafe;--rep-bg:#fee2e2;
+  --purple:#7c3aed;--orange:#c2410c;--green:#15803d;--teal:#0e7490;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+.topbar{background:var(--black);display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:2px solid var(--red);height:50px;flex-shrink:0;}
+.logo{width:28px;height:28px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.65rem;font-weight:800;flex-shrink:0;}
+.topbar-title{color:#fff;font-size:0.9rem;font-weight:600;flex:1;}
+.topbar-back{color:#aaa;font-size:0.72rem;text-decoration:none;display:flex;align-items:center;gap:5px;border:1px solid #333;padding:4px 10px;border-radius:4px;}
+.topbar-back:hover{color:#fff;border-color:#666;}
+.topbar-pill{background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:2px 9px;font-size:0.68rem;color:#aaa;}
+.topbar-pill.live{color:#4ade80;border-color:#166534;background:#052e16;}
+.body{display:grid;grid-template-columns:285px 1fr 380px;flex:1;overflow:hidden;}
+.panel{background:var(--panel);display:flex;flex-direction:column;overflow:hidden;}
+.panel-left{border-right:1px solid var(--border);overflow-y:auto;}
+.panel-right{border-left:1px solid var(--border);}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--panel);flex-shrink:0;}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--black);border-bottom-color:var(--red);}
+.tab-content{display:none;flex-direction:column;overflow-y:auto;flex:1;}
+.tab-content.active{display:flex;}
+.section{padding:12px 14px;border-bottom:1px solid var(--border);}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.section-title{font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+/* Map */
+.map-area{position:relative;background:#1a1a2e;overflow:hidden;}
+#map{width:100%;height:100%;}
+.counter-bar{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(13,13,13,0.92);color:#fff;border-radius:8px;padding:7px 14px;display:flex;align-items:center;gap:14px;font-size:0.75rem;backdrop-filter:blur(4px);white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.3);z-index:10;}
+.cnt{display:flex;align-items:center;gap:5px;}
+.cnt-n{font-family:var(--mono);font-size:1rem;font-weight:700;}
+.cnt-l{color:#999;font-size:0.68rem;}
+.cnt-div{width:1px;height:22px;background:#333;}
+.map-tooltip{position:absolute;background:rgba(13,13,13,0.93);color:#fff;padding:9px 12px;border-radius:6px;font-size:0.73rem;pointer-events:none;z-index:20;display:none;max-width:220px;line-height:1.7;}
+.map-tooltip strong{font-size:0.8rem;display:block;margin-bottom:3px;border-bottom:1px solid #333;padding-bottom:3px;}
+.choropleth-legend{position:absolute;bottom:44px;left:12px;background:rgba(255,255,255,0.95);border-radius:6px;padding:8px 10px;font-size:0.65rem;z-index:10;box-shadow:0 1px 6px rgba(0,0,0,0.15);}
+.legend-title{font-weight:700;margin-bottom:5px;color:var(--text);}
+.legend-gradient{height:10px;border-radius:3px;width:160px;margin-bottom:3px;}
+.legend-labels{display:flex;justify-content:space-between;color:var(--muted);}
+.mode-pill{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(13,13,13,0.85);border-radius:20px;display:flex;padding:3px;gap:2px;backdrop-filter:blur(4px);z-index:10;}
+.mode-btn{padding:5px 11px;border-radius:16px;font-size:0.68rem;font-weight:600;cursor:pointer;color:#aaa;background:none;border:none;font-family:var(--font);transition:all 0.15s;}
+.mode-btn.active{background:var(--panel);color:var(--black);}
+/* Sidebar */
+.card{margin:10px;padding:11px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--border);}
+.card-title{font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px;}
+.elect-selector{display:flex;flex-direction:column;gap:4px;}
+.elect-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);font-size:0.75rem;transition:all 0.12s;}
+.elect-opt:hover{border-color:#bbb;}
+.elect-opt.active{border-color:var(--black);background:var(--black);color:#fff;}
+.margin-bar{height:6px;border-radius:3px;overflow:hidden;display:flex;margin-top:3px;}
+.margin-d{background:var(--dem);transition:width 0.5s;}
+.margin-r{background:var(--rep);transition:width 0.5s;}
+.county-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);font-size:0.73rem;}
+.county-row:last-child{border:none;}
+.county-name{width:90px;flex-shrink:0;font-weight:500;font-size:0.7rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.county-bars{flex:1;}
+.county-pcts{display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.65rem;margin-top:2px;}
+.pct-d{color:var(--dem);}
+.pct-r{color:var(--rep);}
+.winner{font-size:0.62rem;font-weight:700;padding:1px 5px;border-radius:3px;}
+.win-d{background:var(--dem-bg);color:var(--dem);}
+.win-r{background:var(--rep-bg);color:var(--rep);}
+.swing-row{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:0.72rem;border-bottom:1px solid var(--border);}
+.swing-row:last-child{border:none;}
+.swing-county{width:90px;flex-shrink:0;font-size:0.7rem;font-weight:500;}
+.swing{font-family:var(--mono);font-size:0.68rem;font-weight:600;padding:2px 5px;border-radius:3px;}
+.swing-d{background:#dbeafe;color:#1e40af;}
+.swing-r{background:#fee2e2;color:#991b1b;}
+/* Demog rows */
+.dist-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.72rem;}
+.dist-row:last-child{border:none;}
+.dist-num{font-family:var(--mono);font-weight:700;font-size:0.75rem;min-width:28px;text-align:right;}
+.dist-bar-bg{flex:1;height:7px;background:var(--border);border-radius:3px;overflow:hidden;}
+.dist-bar-fill{height:100%;border-radius:3px;transition:width 0.4s;}
+.dist-pct{font-family:var(--mono);font-size:0.68rem;min-width:36px;text-align:right;}
+.alert-badge{font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;margin-left:4px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0;}
+.stat-box{background:var(--panel);border:1px solid var(--border);border-radius:5px;padding:8px 10px;}
+.stat-val{font-family:var(--mono);font-size:1.1rem;font-weight:700;margin-bottom:2px;}
+.stat-lbl{font-size:0.62rem;color:var(--muted);}
+.chamber-toggle{display:flex;gap:4px;margin-bottom:10px;}
+.ch-btn{flex:1;padding:5px 0;border-radius:4px;font-size:0.7rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);font-family:var(--font);color:var(--muted);transition:all 0.12s;}
+.ch-btn.active{background:var(--black);color:#fff;border-color:var(--black);}
+.loading{display:flex;align-items:center;justify-content:center;padding:30px;color:var(--muted);font-size:0.8rem;gap:8px;}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 0.6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.statewide-card{margin:10px;padding:14px;border-radius:6px;background:var(--black);color:#fff;}
+.statewide-title{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;margin-bottom:10px;}
+.statewide-margins{display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;margin-bottom:6px;}
+.statewide-note{font-size:0.7rem;color:#888;text-align:center;margin-top:5px;}
+.statewide-counties{display:flex;justify-content:space-between;font-size:0.68rem;color:#aaa;margin-top:4px;}
+.elect-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+.elect-table th{text-align:left;padding:4px 5px;font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);border-bottom:1px solid var(--border);}
+.elect-table td{padding:5px;border-bottom:1px solid var(--border);}
+.elect-table tr:last-child td{border:none;}
+.elect-table tr:hover td{background:#f9f8f5;}
+.export-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px;padding:8px;background:var(--black);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:0.78rem;font-weight:600;}
+.export-btn:hover{background:#333;}
+.tag{font-size:0.6rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#f3f4f6;color:#555;}
+.sparkline-wrap{display:flex;align-items:flex-end;gap:6px;height:60px;padding:4px;}
+.spark-bar-group{display:flex;flex-direction:column;align-items:center;flex:1;}
+.spark-bar{width:100%;border-radius:3px 3px 0 0;min-height:3px;}
+.spark-label{font-size:0.58rem;color:var(--muted);margin-top:3px;text-align:center;}
+.spark-val{font-size:0.6rem;font-weight:700;margin-top:1px;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
+.fdga-popup .mapboxgl-popup-content{background:transparent;padding:0;box-shadow:0 4px 20px rgba(0,0,0,0.5);border-radius:6px;}
+.fdga-popup .mapboxgl-popup-tip{border-top-color:#1a1a2e;border-bottom-color:#1a1a2e;}
+.fdga-popup .mapboxgl-popup-close-button{color:#aaa;font-size:1rem;padding:4px 8px;top:2px;right:2px;}
+.fdga-popup .mapboxgl-popup-close-button:hover{color:#fff;background:transparent;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">FD</div>
+  <span class="topbar-title">Fair Districts GA &#8212; Analytics</span>
+  <a href="/" class="topbar-back">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    Map
+  </a>
+  <span class="topbar-pill live" id="data-badge">&#9679; Loading&#8230;</span>
+  <span class="topbar-pill" id="mode-badge">Elections mode</span>
+</div>
+
+<div class="body">
+  <!-- LEFT -->
+  <div class="panel panel-left">
+    <div class="section">
+      <div class="section-hd"><span class="section-title">Select Election</span></div>
+      <div class="elect-selector" id="election-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <div class="section">
+      <div class="section-hd"><span class="section-title">Swing Pair</span></div>
+      <div class="elect-selector" id="swing-list"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <div class="section">
+      <div class="section-hd"><span class="section-title">Demographics View</span></div>
+      <div class="chamber-toggle">
+        <button class="ch-btn active" id="ch-senate"   onclick="selectChamber('senate')">Senate</button>
+        <button class="ch-btn"        id="ch-house"    onclick="selectChamber('house')">House</button>
+        <button class="ch-btn"        id="ch-congress" onclick="selectChamber('congress')">Congress</button>
+      </div>
+      <div class="elect-selector" id="demog-measure-list">
+        <div class="elect-opt active" id="dm-pct_bvp"   onclick="selectDemogMeasure('pct_bvp','Black VAP %','#7c3aed')">Black VAP %</div>
+        <div class="elect-opt"        id="dm-pct_hvp"   onclick="selectDemogMeasure('pct_hvp','Hispanic VAP %','#c2410c')">Hispanic VAP %</div>
+        <div class="elect-opt"        id="dm-pct_avp"   onclick="selectDemogMeasure('pct_avp','Asian VAP %','#0e7490')">Asian VAP %</div>
+        <div class="elect-opt"        id="dm-pct_bp_"   onclick="selectDemogMeasure('pct_bp_','Minority VAP %','#15803d')">Minority VAP %</div>
+        <div class="elect-opt"        id="dm-partisan"  onclick="selectDemogMeasure('partisan','Partisan Lean % Dem','#2563eb')">Partisan Lean</div>
+      </div>
+    </div>
+    <div class="section" style="background:#fffcf0">
+      <div class="section-hd"><span class="section-title" style="color:#92400e">Add Elections</span></div>
+      <div style="font-size:0.72rem;color:#78350f;line-height:1.7">
+        Drop CSV/Excel in <code style="background:#fef3c7;padding:1px 4px;border-radius:3px">data/raw/elections/</code><br>
+        then run:<br><code style="background:#fef3c7;padding:1px 4px;border-radius:3px;font-size:0.68rem">python scripts/fetch_election_data.py</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="map-area">
+    <div class="counter-bar">
+      <div class="cnt"><span class="cnt-n" id="cnt-dem">&#8212;</span><span class="cnt-l">Dem co.</span></div>
+      <div class="cnt-div"></div>
+      <div class="cnt"><span class="cnt-n" id="cnt-rep">&#8212;</span><span class="cnt-l">Rep co.</span></div>
+      <div class="cnt-div"></div>
+      <div class="cnt"><span class="cnt-n" id="cnt-total">&#8212;</span><span class="cnt-l">total votes</span></div>
+      <div class="cnt-div"></div>
+      <div class="cnt"><span class="cnt-n" id="cnt-label" style="font-size:0.72rem">&#8212;</span></div>
+    </div>
+    <div id="map"></div>
+    <div class="map-tooltip" id="map-tooltip"></div>
+    <div class="choropleth-legend">
+      <div class="legend-title" id="legend-title">Election Margin</div>
+      <div class="legend-gradient" id="legend-gradient" style="background:linear-gradient(to right,#b91c1c,#fca5a5,#e5e7eb,#93c5fd,#1d4ed8)"></div>
+      <div class="legend-labels" id="legend-labels">
+        <span style="color:var(--rep)">Strong R</span><span>Toss-up</span><span style="color:var(--dem)">Strong D</span>
+      </div>
+    </div>
+    <div class="mode-pill">
+      <button class="mode-btn active" id="mode-elections"    onclick="setMode('elections')">Elections</button>
+      <button class="mode-btn"        id="mode-swings"       onclick="setMode('swings')">Swings</button>
+      <button class="mode-btn"        id="mode-demographics" onclick="setMode('demographics')">Demographics</button>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel panel-right">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(event,'elections')">Elections</div>
+      <div class="tab"        onclick="switchTab(event,'swings')">Swings</div>
+      <div class="tab"        onclick="switchTab(event,'demographics')">Demographics</div>
+      <div class="tab"        onclick="switchTab(event,'compare')">Compare</div>
+    </div>
+
+    <!-- Elections tab -->
+    <div class="tab-content active" id="tab-elections">
+      <div id="statewide-summary"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="card">
+        <div class="card-title">Key Counties</div>
+        <div id="county-results-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <button class="export-btn" onclick="exportCSV('elections')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export county results as CSV
+      </button>
+    </div>
+
+    <!-- Swings tab -->
+    <div class="tab-content" id="tab-swings">
+      <div class="card" id="swing-summary-card"><div class="loading"><div class="spinner"></div> Select a swing pair</div></div>
+      <div class="card">
+        <div class="card-title">Biggest Swings Toward Democrats</div>
+        <div id="swing-d-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Biggest Swings Toward Republicans</div>
+        <div id="swing-r-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Georgia Presidential Trend</div>
+        <div class="sparkline-wrap" id="sparkline"></div>
+        <div style="font-size:0.68rem;color:var(--muted);margin-top:4px;line-height:1.5" id="sparkline-note"></div>
+      </div>
+      <button class="export-btn" onclick="exportCSV('swings')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export swing data as CSV
+      </button>
+    </div>
+
+    <!-- Demographics tab -->
+    <div class="tab-content" id="tab-demographics">
+      <div class="card" id="demog-stats-card">
+        <div class="loading"><div class="spinner"></div> Select Demographics mode</div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="demog-list-title">Districts by Black VAP %</div>
+        <div id="demog-dist-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Near Threshold (45&#8211;55%)</div>
+        <div id="demog-threshold-list"><div style="padding:6px;font-size:0.72rem;color:var(--muted)">Select demographics mode to see threshold districts</div></div>
+      </div>
+      <button class="export-btn" onclick="exportCSV('demographics')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export district demographics as CSV
+      </button>
+    </div>
+
+    <!-- Compare tab -->
+    <div class="tab-content" id="tab-compare">
+      <div class="card">
+        <div class="card-title">Presidential Trend &#8212; Statewide</div>
+        <div id="compare-pres-table"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Suburban Counties &#8212; Presidential Shift</div>
+        <div id="compare-suburban"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <button class="export-btn" onclick="exportCSV('compare')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export comparison as CSV
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script>
+const API = '';
+let allElections = [], allSwings = [], allSummary = [], swingPairIndex = [];
+let allDistricts = { senate: [], house: [], congress: [] };
+let currentElectionId = null, currentSwingLabel = null, currentMode = 'elections';
+let currentChamber = 'senate', currentDemogMeasure = 'pct_bvp';
+let currentDemogLabel = 'Black VAP %', currentDemogColor = '#7c3aed';
+let _map = null, mapReady = false, countyGeojson = null, districtGeojson = null;
+
+const KEY_COUNTIES = ['FULTON','DEKALB','GWINNETT','COBB','HENRY','FORSYTH',
+                      'CHEROKEE','DOUGLAS','ROCKDALE','DOUGHERTY','MUSCOGEE','CHATHAM'];
+
+// ── Map ───────────────────────────────────────────────────────────────────────
+function initMap() {
+  const token = window.MAPBOX_TOKEN;
+  if (!token) { console.error('No MAPBOX_TOKEN'); return; }
+  mapboxgl.accessToken = token;
+  _map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v11',
+    center: [-83.5, 32.65],
+    zoom: 6.2, minZoom: 5, maxZoom: 12,
+  });
+  _map.addControl(new mapboxgl.NavigationControl({showCompass:false}), 'bottom-right');
+
+  _map.on('load', async () => {
+    try {
+      // Load county GeoJSON
+      const resp = await fetch('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json');
+      const raw = await resp.json();
+      countyGeojson = {
+        type: 'FeatureCollection',
+        features: raw.features.filter(f => String(f.id||'').startsWith('13'))
+      };
+      countyGeojson.features.forEach(f => {
+        f.properties._county = (f.properties.NAME||'').toUpperCase().replace(' COUNTY','').trim();
+        f.properties._color  = '#334155';
+      });
+      console.log('Counties loaded:', countyGeojson.features.length);
+
+      _map.addSource('ga-counties', {type:'geojson', data: countyGeojson});
+      _map.addLayer({id:'county-fill',    type:'fill', source:'ga-counties', paint:{'fill-color':['get','_color'],'fill-opacity':0.85}});
+      _map.addLayer({id:'county-outline', type:'line', source:'ga-counties', paint:{'line-color':'#475569','line-width':0.8}});
+      _map.addLayer({id:'county-hover',   type:'fill', source:'ga-counties', filter:['==','_county',''], paint:{'fill-color':'#fff','fill-opacity':0.2}});
+
+      // Empty district source (filled when demographics mode selected)
+      _map.addSource('ga-districts', {type:'geojson', data:{type:'FeatureCollection',features:[]}});
+      _map.addLayer({id:'district-fill',    type:'fill', source:'ga-districts', paint:{'fill-color':['get','_color'],'fill-opacity':0.80}});
+      _map.addLayer({id:'district-outline', type:'line', source:'ga-districts', paint:{'line-color':'#e2e8f0','line-width':1.0}});
+      _map.addLayer({id:'district-hover',   type:'fill', source:'ga-districts', filter:['==','district',-1], paint:{'fill-color':'#fff','fill-opacity':0.2}});
+
+      mapReady = true;
+      if (currentMode === 'elections'    && currentElectionId)  paintElections(currentElectionId);
+      else if (currentMode === 'swings'  && currentSwingLabel)  paintSwings(currentSwingLabel);
+      else if (currentMode === 'demographics')                   paintDemographics();
+
+      setupHover();
+    } catch(err) { console.error('Map load error:', err); }
+  });
+}
+
+function buildCountyPopupHTML(county) {
+  // Gather all elections for this county
+  const rows = allElections.filter(r => r.county === county).sort((a,b) => a.year - b.year);
+  if (!rows.length) return '<strong>' + county + ' County</strong><br><span style="color:#aaa;font-size:0.7rem">No election data</span>';
+  let html = '<strong>' + county + ' County, GA</strong>';
+  html += '<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:0.7rem">';
+  html += '<tr><th style="text-align:left;color:#aaa;padding:2px 4px">Election</th><th style="color:#93c5fd;padding:2px 4px">Dem</th><th style="color:#fca5a5;padding:2px 4px">Rep</th><th style="padding:2px 4px">Margin</th></tr>';
+  rows.forEach(r => {
+    const d = r.margin > 0;
+    html += '<tr>' +
+      '<td style="padding:2px 4px;color:#ccc">' + r.label + '</td>' +
+      '<td style="padding:2px 4px;color:#93c5fd;font-family:monospace">' + r.dem_pct + '%</td>' +
+      '<td style="padding:2px 4px;color:#fca5a5;font-family:monospace">' + r.rep_pct + '%</td>' +
+      '<td style="padding:2px 4px;font-weight:700;color:' + (d?'#93c5fd':'#fca5a5') + ';font-family:monospace">' + (d?'D':'R') + '+' + Math.abs(r.margin).toFixed(1) + '</td>' +
+      '</tr>';
+  });
+  html += '</table>';
+  // Swings for this county
+  const swings = allSwings.filter(s => s.county === county).sort((a,b) => a.swing_label > b.swing_label ? 1 : -1);
+  if (swings.length) {
+    html += '<div style="margin-top:8px;font-size:0.65rem;color:#aaa;text-transform:uppercase;letter-spacing:0.06em">Swings</div>';
+    swings.forEach(s => {
+      const d = Number(s.swing_pp) > 0;
+      html += '<div style="font-size:0.7rem;display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #333">' +
+        '<span style="color:#ccc">' + s.swing_label + '</span>' +
+        '<span style="font-weight:700;color:' + (d?'#86efac':'#fca5a5') + ';font-family:monospace">' + (d?'+':'') + Number(s.swing_pp).toFixed(1) + 'pp</span>' +
+        '</div>';
+    });
+  }
+  return html;
+}
+
+function buildDistrictPopupHTML(dist) {
+  const r = allDistricts[currentChamber].find(x => x.district === dist);
+  if (!r) return '<strong>District ' + dist + '</strong><br><span style="color:#aaa">No data</span>';
+  const chamberLabel = currentChamber.charAt(0).toUpperCase() + currentChamber.slice(1);
+  const elections = [
+    {label:'Gov 2018',  val: r.g18_pct_dem},
+    {label:'Pres 2020', val: r.p20_pct_dem},
+    {label:'Runoff 2021', val: r.r21_pct_dem},
+    {label:'Gov 2022',  val: r.g22_pct_dem},
+    {label:'Sen 2022',  val: r.s22_pct_dem},
+  ].filter(e => e.val != null);
+  let html = '<strong>' + chamberLabel + ' District ' + dist + '</strong>';
+  html += '<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:0.7rem">';
+  html += '<tr><th style="text-align:left;color:#aaa;padding:2px 4px">Metric</th><th style="text-align:right;padding:2px 4px">Value</th></tr>';
+  [
+    ['Population', Number(r.pop).toLocaleString()],
+    ['Total VAP',  Number(r.tvap).toLocaleString()],
+    ['Black VAP',  r.pct_bvp + '%'],
+    ['Hispanic VAP', r.pct_hvp + '%'],
+    ['Asian VAP',  r.pct_avp + '%'],
+    ['White VAP',  r.pct_wvap_al + '%'],
+    ['Minority VAP', r.pct_bp_ + '%'],
+    ['Partisan Lean', r.partisan + '% Dem'],
+  ].forEach(([lbl, val]) => {
+    html += '<tr><td style="padding:2px 4px;color:#ccc">' + lbl + '</td><td style="padding:2px 4px;text-align:right;font-family:monospace;color:#fff">' + val + '</td></tr>';
+  });
+  html += '</table>';
+  if (elections.length) {
+    html += '<div style="margin-top:8px;font-size:0.65rem;color:#aaa;text-transform:uppercase;letter-spacing:0.06em">Election History (% Dem)</div>';
+    elections.forEach(e => {
+      const d = e.val >= 50;
+      const w = Math.min(e.val, 100);
+      html += '<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:0.7rem">' +
+        '<span style="min-width:80px;color:#ccc">' + e.label + '</span>' +
+        '<div style="flex:1;height:6px;background:#333;border-radius:3px;overflow:hidden">' +
+          '<div style="height:100%;width:' + w + '%;background:' + (d?'#3b82f6':'#ef4444') + ';border-radius:3px"></div>' +
+        '</div>' +
+        '<span style="font-family:monospace;font-weight:700;color:' + (d?'#93c5fd':'#fca5a5') + ';min-width:36px;text-align:right">' + e.val + '%</span>' +
+        '</div>';
+    });
+  }
+  return html;
+}
+
+function showPopup(lngLat, html) {
+  // Remove existing popup
+  document.querySelectorAll('.map-popup').forEach(el => el.remove());
+  const popup = new mapboxgl.Popup({
+    closeButton: true,
+    closeOnClick: false,
+    className: 'fdga-popup',
+    maxWidth: '280px',
+  });
+  popup.setLngLat(lngLat).setHTML(
+    '<div style="background:#1a1a2e;color:#fff;padding:10px 12px;border-radius:6px;font-family:\'DM Sans\',sans-serif;line-height:1.6;max-height:400px;overflow-y:auto">' +
+    html + '</div>'
+  ).addTo(_map);
+}
+
+function setupHover() {
+  const tooltip = document.getElementById('map-tooltip');
+
+  _map.on('mousemove', 'county-fill', e => {
+    if (currentMode === 'demographics') return;
+    const county = e.features[0]?.properties?._county;
+    if (!county) return;
+    _map.setFilter('county-hover', ['==','_county', county]);
+    let html = '';
+    if (currentMode === 'elections' && currentElectionId) {
+      const r = allElections.find(x => x.election_id===currentElectionId && x.county===county);
+      if (r) {
+        const d = r.margin > 0;
+        html = '<strong>' + county + '</strong>' +
+          'Dem: ' + r.dem_pct + '%&nbsp;&nbsp;Rep: ' + r.rep_pct + '%<br>' +
+          '<span style="color:' + (d?'#93c5fd':'#fca5a5') + ';font-weight:700">' +
+          (d?'D':'R') + '+' + Math.abs(r.margin).toFixed(1) + 'pp</span>';
+      }
+    } else if (currentMode === 'swings' && currentSwingLabel) {
+      const r = allSwings.find(x => x.swing_label===currentSwingLabel && x.county===county);
+      if (r) {
+        const d = Number(r.swing_pp) > 0;
+        html = '<strong>' + county + '</strong>' +
+          r.swing_label + '<br>' +
+          '<span style="color:' + (d?'#86efac':'#fca5a5') + ';font-weight:700">' +
+          (d?'+':'') + Number(r.swing_pp).toFixed(1) + 'pp ' + r.swing_dir + '</span>';
+      }
+    }
+    showTooltip(html, e.point);
+  });
+  _map.on('mouseleave', 'county-fill', () => {
+    hideTooltip();
+    _map.setFilter('county-hover', ['==','_county','']);
+  });
+
+  _map.on('mousemove', 'district-fill', e => {
+    if (currentMode !== 'demographics') return;
+    const props = e.features[0]?.properties;
+    if (!props) return;
+    const dist = props.district;
+    _map.setFilter('district-hover', ['==','district', dist]);
+    const r = allDistricts[currentChamber].find(x => x.district === dist);
+    if (!r) return;
+    const val = r[currentDemogMeasure];
+    const html = '<strong>' + currentChamber.charAt(0).toUpperCase() + currentChamber.slice(1) + ' District ' + dist + '</strong>' +
+      currentDemogLabel + ': <span style="color:' + currentDemogColor + ';font-weight:700">' + val + '%</span><br>' +
+      'Black VAP: ' + r.pct_bvp + '% &nbsp; Hispanic: ' + r.pct_hvp + '%<br>' +
+      'Minority VAP: ' + r.pct_bp_ + '% &nbsp; Partisan: ' + r.partisan + '% Dem<br>' +
+      'Pop: ' + Number(r.pop).toLocaleString();
+    showTooltip(html, e.point);
+  });
+  _map.on('mouseleave', 'district-fill', () => {
+    hideTooltip();
+    _map.setFilter('district-hover', ['==','district',-1]);
+  });
+
+  // Right-click: county detail popup
+  _map.on('contextmenu', 'county-fill', e => {
+    e.preventDefault();
+    const county = e.features[0]?.properties?._county;
+    if (!county) return;
+    showPopup(e.lngLat, buildCountyPopupHTML(county));
+  });
+
+  // Right-click: district detail popup
+  _map.on('contextmenu', 'district-fill', e => {
+    e.preventDefault();
+    const dist = e.features[0]?.properties?.district;
+    if (dist == null) return;
+    showPopup(e.lngLat, buildDistrictPopupHTML(dist));
+  });
+}
+
+function showTooltip(html, point) {
+  if (!html) return;
+  const t = document.getElementById('map-tooltip');
+  t.innerHTML = html;
+  t.style.display = 'block';
+  t.style.left = (point.x + 14) + 'px';
+  t.style.top  = (point.y - 10) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('map-tooltip').style.display = 'none';
+}
+
+// Show/hide correct layer set
+function showCountyLayers(show) {
+  const v = show ? 'visible' : 'none';
+  ['county-fill','county-outline','county-hover'].forEach(id => _map.setLayoutProperty(id,'visibility',v));
+}
+function showDistrictLayers(show) {
+  const v = show ? 'visible' : 'none';
+  ['district-fill','district-outline','district-hover'].forEach(id => _map.setLayoutProperty(id,'visibility',v));
+}
+
+// ── County paint ──────────────────────────────────────────────────────────────
+function updateCountyColors(colorMap) {
+  if (!mapReady || !countyGeojson) return;
+  countyGeojson.features.forEach(f => {
+    f.properties._color = colorMap[f.properties._county] || '#334155';
+  });
+  _map.getSource('ga-counties').setData(countyGeojson);
+}
+
+function paintElections(eid) {
+  showCountyLayers(true); showDistrictLayers(false);
+  const colorMap = {};
+  allElections.filter(e=>e.election_id===eid).forEach(r => { colorMap[r.county] = marginToColor(r.margin); });
+  updateCountyColors(colorMap);
+  setLegend('Election Margin', 'linear-gradient(to right,#b91c1c,#ef4444,#fca5a5,#e5e7eb,#93c5fd,#3b82f6,#1d4ed8)',
+    '<span style="color:var(--rep)">Strong R</span><span>Toss-up</span><span style="color:var(--dem)">Strong D</span>');
+}
+
+function paintSwings(label) {
+  showCountyLayers(true); showDistrictLayers(false);
+  const colorMap = {};
+  allSwings.filter(s=>s.swing_label===label).forEach(r => { colorMap[r.county] = swingToColor(Number(r.swing_pp)); });
+  updateCountyColors(colorMap);
+  setLegend('Swing pp (+ = toward D)', 'linear-gradient(to right,#b91c1c,#fca5a5,#e5e7eb,#86efac,#15803d)',
+    '<span style="color:var(--rep)">Strong R</span><span>Stable</span><span style="color:var(--green)">Strong D</span>');
+}
+
+// ── District paint ────────────────────────────────────────────────────────────
+async function paintDemographics() {
+  if (!mapReady) return;
+  showCountyLayers(false); showDistrictLayers(true);
+
+  // Load district GeoJSON if not yet cached
+  const chamberFile = {senate:'senate_enacted_24_2024update.geojson', house:'house_enacted_24_2024update.geojson', congress:'congress_enacted_24_2024update.geojson'};
+  try {
+    const resp = await fetch('/data/' + chamberFile[currentChamber]);
+    districtGeojson = await resp.json();
+  } catch(e) { console.error('District GeoJSON load failed', e); return; }
+
+  const rows = allDistricts[currentChamber];
+  districtGeojson.features.forEach(f => {
+    const dist = f.properties.district;
+    const row  = rows.find(r => r.district === dist);
+    const val  = row ? row[currentDemogMeasure] / 100 : 0;
+    f.properties._color = demogToColor(val, currentDemogMeasure);
+  });
+  _map.getSource('ga-districts').setData(districtGeojson);
+
+  const isPartisan = currentDemogMeasure === 'partisan';
+  setLegend(currentDemogLabel,
+    isPartisan
+      ? 'linear-gradient(to right,#b91c1c,#fca5a5,#e5e7eb,#93c5fd,#1d4ed8)'
+      : 'linear-gradient(to right,#f9fafb,#d8b4fe,#7c3aed)',
+    isPartisan
+      ? '<span style="color:var(--rep)">Strong R</span><span>50%</span><span style="color:var(--dem)">Strong D</span>'
+      : '<span>0%</span><span>25%</span><span>50%+</span>'
+  );
+}
+
+function demogToColor(val, measure) {
+  if (measure === 'partisan') {
+    if (val > 0.60) return '#1d4ed8';
+    if (val > 0.52) return '#93c5fd';
+    if (val > 0.48) return '#e5e7eb';
+    if (val > 0.40) return '#fca5a5';
+    return '#b91c1c';
+  }
+  // VAP measures — purple scale
+  if (val > 0.50) return '#4c1d95';
+  if (val > 0.40) return '#6d28d9';
+  if (val > 0.30) return '#7c3aed';
+  if (val > 0.20) return '#a78bfa';
+  if (val > 0.10) return '#ddd6fe';
+  return '#f5f3ff';
+}
+
+function setLegend(title, gradient, labels) {
+  document.getElementById('legend-title').textContent    = title;
+  document.getElementById('legend-gradient').style.background = gradient;
+  document.getElementById('legend-labels').innerHTML     = labels;
+}
+
+function marginToColor(m) {
+  const v = Number(m);
+  if (v >  0.20) return '#1d4ed8';
+  if (v >  0.10) return '#3b82f6';
+  if (v >  0.03) return '#93c5fd';
+  if (v > -0.03) return '#e5e7eb';
+  if (v > -0.10) return '#fca5a5';
+  if (v > -0.20) return '#ef4444';
+  return '#b91c1c';
+}
+function swingToColor(pp) {
+  if (pp >  10) return '#15803d';
+  if (pp >   5) return '#4ade80';
+  if (pp >   2) return '#86efac';
+  if (pp >  -2) return '#e5e7eb';
+  if (pp >  -5) return '#fca5a5';
+  if (pp > -10) return '#ef4444';
+  return '#b91c1c';
+}
+
+// ── Demographics sidebar ──────────────────────────────────────────────────────
+function selectChamber(chamber) {
+  currentChamber = chamber;
+  ['senate','house','congress'].forEach(c => {
+    document.getElementById('ch-' + c).classList.toggle('active', c === chamber);
+  });
+  renderDemogTab();
+  if (currentMode === 'demographics') paintDemographics();
+}
+
+function selectDemogMeasure(measure, label, color) {
+  currentDemogMeasure = measure;
+  currentDemogLabel   = label;
+  currentDemogColor   = color;
+  document.querySelectorAll('[id^="dm-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('dm-' + measure).classList.add('active');
+  renderDemogTab();
+  if (currentMode === 'demographics') paintDemographics();
+}
+
+function renderDemogTab() {
+  const rows = allDistricts[currentChamber];
+  if (!rows || !rows.length) {
+    document.getElementById('demog-stats-card').innerHTML = '<div style="padding:8px;font-size:0.75rem;color:var(--muted)">Loading district data&#8230;</div>';
+    return;
+  }
+
+  const vals   = rows.map(r => r[currentDemogMeasure]);
+  const avg    = (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+  const maxVal = Math.max(...vals);
+  const minVal = Math.min(...vals);
+  const above50 = vals.filter(v => v >= 50).length;
+  const above45 = vals.filter(v => v >= 45 && v < 55).length;
+
+  const chamberLabel = currentChamber.charAt(0).toUpperCase() + currentChamber.slice(1);
+  document.getElementById('demog-stats-card').innerHTML =
+    '<div class="card-title">' + chamberLabel + ' &#8212; ' + currentDemogLabel + '</div>' +
+    '<div class="stat-grid">' +
+      '<div class="stat-box"><div class="stat-val" style="color:' + currentDemogColor + '">' + avg + '%</div><div class="stat-lbl">Average</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + above50 + '</div><div class="stat-lbl">Districts &ge;50%</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + minVal.toFixed(1) + '%</div><div class="stat-lbl">Min</div></div>' +
+      '<div class="stat-box"><div class="stat-val">' + maxVal.toFixed(1) + '%</div><div class="stat-lbl">Max</div></div>' +
+    '</div>';
+
+  // Ranked district list
+  document.getElementById('demog-list-title').textContent = chamberLabel + ' Districts by ' + currentDemogLabel;
+  const sorted = [...rows].sort((a,b) => b[currentDemogMeasure] - a[currentDemogMeasure]);
+  document.getElementById('demog-dist-list').innerHTML = sorted.map(r => {
+    const val = r[currentDemogMeasure];
+    const pct = Math.min(val / 75 * 100, 100);
+    const near = (val >= 45 && val <= 55) ? '<span class="alert-badge">Near 50%</span>' : '';
+    const maj  = val >= 50 ? '<span class="alert-badge" style="background:#dcfce7;color:#166534">Majority</span>' : '';
+    return '<div class="dist-row">' +
+      '<span class="dist-num" style="color:' + currentDemogColor + '">' + r.district + '</span>' +
+      '<div class="dist-bar-bg"><div class="dist-bar-fill" style="width:' + pct + '%;background:' + currentDemogColor + '"></div></div>' +
+      '<span class="dist-pct">' + val + '%</span>' +
+      maj + near +
+      '</div>';
+  }).join('');
+
+  // Threshold districts
+  const threshold = sorted.filter(r => r[currentDemogMeasure] >= 45 && r[currentDemogMeasure] <= 55);
+  document.getElementById('demog-threshold-list').innerHTML = threshold.length
+    ? threshold.map(r => {
+        const val = r[currentDemogMeasure];
+        return '<div class="dist-row">' +
+          '<span class="dist-num" style="color:' + currentDemogColor + '">' + r.district + '</span>' +
+          '<div class="dist-bar-bg"><div class="dist-bar-fill" style="width:' + val + '%;background:' + currentDemogColor + '"></div></div>' +
+          '<span class="dist-pct">' + val + '%</span>' +
+          '<span style="font-size:0.65rem;color:var(--muted);margin-left:4px">partisan: ' + r.partisan + '%D</span>' +
+          '</div>';
+      }).join('')
+    : '<div style="padding:6px;font-size:0.72rem;color:var(--muted)">No districts in 45&#8211;55% range</div>';
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const [elections, summary, pairs, swings, dSenate, dHouse, dCongress] = await Promise.all([
+      fetch('/api/elections').then(r=>r.json()),
+      fetch('/api/elections/summary').then(r=>r.json()),
+      fetch('/api/swings/pairs').then(r=>r.json()),
+      fetch('/api/swings').then(r=>r.json()),
+      fetch('/api/districts/senate').then(r=>r.json()),
+      fetch('/api/districts/house').then(r=>r.json()),
+      fetch('/api/districts/congress').then(r=>r.json()),
+    ]);
+    allElections = elections;
+    allSummary   = summary;
+    allSwings    = swings;
+    swingPairIndex = pairs;
+    allDistricts.senate   = dSenate;
+    allDistricts.house    = dHouse;
+    allDistricts.congress = dCongress;
+
+    document.getElementById('data-badge').textContent =
+      '\u25CF ' + summary.length + ' elections \u00B7 ' + dSenate.length + ' senate districts';
+
+    renderElectionList(summary);
+    renderSwingList(pairs);
+    buildSparkline(summary);
+    buildCompare(elections, summary);
+    renderDemogTab();
+    initMap();
+
+    if (summary.length > 0) selectElection(summary[summary.length-1].election_id);
+    if (pairs.length   > 0) selectSwing(pairs[0].swing_label);
+
+  } catch(e) {
+    document.getElementById('data-badge').textContent = '\u25CF Error';
+    document.getElementById('data-badge').style.color = '#f87171';
+    console.error('Init error:', e);
+  }
+}
+
+// ── Election list ─────────────────────────────────────────────────────────────
+function renderElectionList(summary) {
+  const el = document.getElementById('election-list');
+  if (!summary.length) { el.innerHTML = '<div style="padding:10px;font-size:0.75rem;color:var(--muted)">No elections loaded</div>'; return; }
+  el.innerHTML = summary.map(s => {
+    const d = s.margin > 0;
+    return '<div class="elect-opt" id="eopt-' + s.election_id + '" onclick="selectElection(\'' + s.election_id + '\')">' +
+      '<span style="font-family:var(--mono);font-size:0.7rem;font-weight:700;min-width:38px">' + s.year + '</span>' +
+      '<span style="flex:1">' + s.label + '</span>' +
+      '<span class="tag" style="background:' + (d?'var(--dem-bg)':'var(--rep-bg)') + ';color:' + (d?'var(--dem)':'var(--rep)') + '">' +
+        (d?'D':'R') + '+' + Math.abs(s.margin).toFixed(1) + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function selectElection(eid) {
+  currentElectionId = eid;
+  document.querySelectorAll('.elect-opt[id^="eopt-"]').forEach(e=>e.classList.remove('active'));
+  document.getElementById('eopt-' + eid)?.classList.add('active');
+  const s = allSummary.find(x=>x.election_id===eid);
+  if (s) { updateCounterBar(s); renderStatewideCard(s); }
+  renderCountyResults(allElections.filter(e=>e.election_id===eid));
+  if (currentMode === 'elections') paintElections(eid);
+  switchTabById('elections');
+}
+
+// ── Swing list ────────────────────────────────────────────────────────────────
+function renderSwingList(pairs) {
+  const el = document.getElementById('swing-list');
+  if (!pairs.length) { el.innerHTML = '<div style="padding:10px;font-size:0.75rem;color:var(--muted)">Need 2+ elections for swings</div>'; return; }
+  el.innerHTML = pairs.map((p,i) =>
+    '<div class="elect-opt" id="sopt-' + i + '" onclick="selectSwingByIndex(' + i + ')">' + p.swing_label + '</div>'
+  ).join('');
+}
+
+function selectSwingByIndex(i) { selectSwing(swingPairIndex[i]?.swing_label); }
+
+function selectSwing(label) {
+  if (!label) return;
+  currentSwingLabel = label;
+  document.querySelectorAll('.elect-opt[id^="sopt-"]').forEach((el,i) => {
+    el.classList.toggle('active', swingPairIndex[i]?.swing_label === label);
+  });
+  const data = allSwings.filter(s => s.swing_label === label);
+  if (!data.length) {
+    document.getElementById('swing-summary-card').innerHTML = '<div style="padding:8px;font-size:0.75rem;color:var(--muted)">No data for: ' + label + '</div>';
+    return;
+  }
+  const towardD  = data.filter(s=>s.swing_dir==='Toward D').length;
+  const towardR  = data.filter(s=>s.swing_dir==='Toward R').length;
+  const stable   = data.filter(s=>s.swing_dir==='Stable').length;
+  const maxSwing = Math.max(...data.map(s=>Math.abs(Number(s.swing_pp))));
+  document.getElementById('swing-summary-card').innerHTML =
+    '<div class="card-title">' + label + '</div>' +
+    '<div style="display:flex;gap:14px;font-size:0.75rem;margin-bottom:6px">' +
+      '<span>&#x1F535; D: <strong>' + towardD + '</strong></span>' +
+      '<span>&#x1F534; R: <strong>' + towardR + '</strong></span>' +
+      '<span>&#x2B1C; Stable: <strong>' + stable + '</strong></span>' +
+    '</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted)">Max: ' + maxSwing.toFixed(1) + 'pp | ' + data.length + ' counties</div>';
+  const topD = data.filter(s=>s.swing_dir==='Toward D').sort((a,b)=>Number(b.swing_pp)-Number(a.swing_pp)).slice(0,8);
+  const topR = data.filter(s=>s.swing_dir==='Toward R').sort((a,b)=>Number(a.swing_pp)-Number(b.swing_pp)).slice(0,8);
+  document.getElementById('swing-d-list').innerHTML = topD.length ? topD.map(s=>swingRow(s,'D')).join('') : '<div style="padding:8px;font-size:0.72rem;color:var(--muted)">None</div>';
+  document.getElementById('swing-r-list').innerHTML = topR.length ? topR.map(s=>swingRow(s,'R')).join('') : '<div style="padding:8px;font-size:0.72rem;color:var(--muted)">None</div>';
+  if (currentMode === 'swings') paintSwings(label);
+  switchTabById('swings');
+}
+
+function swingRow(s, dir) {
+  const pp=Number(s.swing_pp), mf=Number(s.margin_from), mt=Number(s.margin_to);
+  const pct=Math.min(Math.abs(pp)/20*100,100), isD=dir==='D';
+  return '<div class="swing-row">' +
+    '<span class="swing-county">' + s.county + '</span>' +
+    '<span style="font-size:0.63rem;color:var(--muted);min-width:80px">' + (mf>0?'D':'R') + Math.abs(mf).toFixed(1) + '&#8594;' + (mt>0?'D':'R') + Math.abs(mt).toFixed(1) + '</span>' +
+    '<div style="flex:1;background:var(--border);height:5px;border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;width:' + pct + '%;background:' + (isD?'var(--dem)':'var(--rep)') + '"></div></div>' +
+    '<span class="swing ' + (isD?'swing-d':'swing-r') + '" style="margin-left:4px">' + (isD?'+':'') + pp.toFixed(1) + 'pp</span>' +
+    '</div>';
+}
+
+// ── Counter + statewide ───────────────────────────────────────────────────────
+function updateCounterBar(s) {
+  document.getElementById('cnt-dem').textContent   = s.dem_counties;
+  document.getElementById('cnt-rep').textContent   = s.rep_counties;
+  document.getElementById('cnt-total').textContent = (s.total_votes/1e6).toFixed(2) + 'M';
+  document.getElementById('cnt-label').textContent = s.label;
+}
+
+function renderStatewideCard(s) {
+  const d = s.margin > 0;
+  document.getElementById('statewide-summary').innerHTML =
+    '<div class="statewide-card">' +
+      '<div class="statewide-title">Statewide &#8212; ' + s.label + '</div>' +
+      '<div class="statewide-margins"><span style="color:#93c5fd">Dem ' + s.dem_pct + '%</span><span style="color:#fca5a5">Rep ' + s.rep_pct + '%</span></div>' +
+      '<div class="margin-bar" style="height:8px"><div class="margin-d" style="width:' + s.dem_pct + '%"></div><div class="margin-r" style="width:' + s.rep_pct + '%"></div></div>' +
+      '<div class="statewide-note">' + (d?'Dem':'Rep') + ' won by ' + Math.abs(s.margin).toFixed(1) + 'pp</div>' +
+      '<div class="statewide-counties"><span>&#x1F535; ' + s.dem_counties + ' Dem counties</span><span>&#x1F534; ' + s.rep_counties + ' Rep counties</span></div>' +
+    '</div>';
+}
+
+function renderCountyResults(counties) {
+  const key  = counties.filter(c=>KEY_COUNTIES.includes(c.county)).sort((a,b)=>b.margin-a.margin);
+  const rest = counties.filter(c=>!KEY_COUNTIES.includes(c.county)).sort((a,b)=>b.margin-a.margin).slice(0,5);
+  document.getElementById('county-results-list').innerHTML = [...key,...rest].slice(0,15).map(c => {
+    const d = c.margin > 0;
+    return '<div class="county-row">' +
+      '<span class="county-name">' + c.county + '</span>' +
+      '<div class="county-bars"><div class="margin-bar"><div class="margin-d" style="width:' + c.dem_pct + '%"></div><div class="margin-r" style="width:' + c.rep_pct + '%"></div></div>' +
+      '<div class="county-pcts"><span class="pct-d">' + c.dem_pct + '%</span><span class="pct-r">' + c.rep_pct + '%</span></div></div>' +
+      '<span class="winner ' + (d?'win-d':'win-r') + '">' + (d?'D':'R') + '+' + Math.abs(c.margin).toFixed(1) + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+// ── Mode toggle ───────────────────────────────────────────────────────────────
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+  document.getElementById('mode-badge').textContent = mode.charAt(0).toUpperCase() + mode.slice(1) + ' mode';
+  if (mode === 'elections'    && currentElectionId) paintElections(currentElectionId);
+  if (mode === 'swings'       && currentSwingLabel) paintSwings(currentSwingLabel);
+  if (mode === 'demographics')                       paintDemographics();
+  // Auto-switch right panel tab
+  const tabMap = {elections:'elections', swings:'swings', demographics:'demographics'};
+  if (tabMap[mode]) {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    const tabs = document.querySelectorAll('.tab');
+    const contents = document.querySelectorAll('.tab-content');
+    tabs.forEach((t,i) => { if (contents[i]?.id === 'tab-' + tabMap[mode]) { t.classList.add('active'); contents[i].classList.add('active'); } });
+  }
+}
+
+// ── Sparkline ─────────────────────────────────────────────────────────────────
+function buildSparkline(summary) {
+  const pres = summary.filter(s=>s.office==='president').sort((a,b)=>a.year-b.year);
+  if (!pres.length) return;
+  const maxAbs = Math.max(...pres.map(s=>Math.abs(s.margin)));
+  document.getElementById('sparkline').innerHTML = pres.map(s => {
+    const d=s.margin>0, h=Math.max(Math.abs(s.margin)/maxAbs*100,5);
+    return '<div class="spark-bar-group">' +
+      '<div class="spark-bar" style="height:' + h + '%;background:' + (d?'var(--dem)':'var(--rep)') + '"></div>' +
+      '<div class="spark-label">' + s.year + '</div>' +
+      '<div class="spark-val" style="color:' + (d?'var(--dem)':'var(--rep)') + '">' + (d?'D':'R') + '+' + Math.abs(s.margin).toFixed(1) + '</div>' +
+      '</div>';
+  }).join('');
+  const first=pres[0], last=pres[pres.length-1];
+  if (first && last && first.year!==last.year) {
+    const shift=(last.margin-first.margin).toFixed(1);
+    document.getElementById('sparkline-note').textContent =
+      'Georgia shifted ' + Math.abs(shift) + 'pp ' + (shift>0?'toward Democrats':'toward Republicans') + ' from ' + first.year + ' to ' + last.year + '.';
+  }
+}
+
+// ── Compare ───────────────────────────────────────────────────────────────────
+function buildCompare(elections, summary) {
+  const presYears = [...new Set(summary.filter(s=>s.office==='president').map(s=>s.year))].sort();
+  const presRows  = summary.filter(s=>s.office==='president').sort((a,b)=>a.year-b.year);
+  const suburban  = ['GWINNETT','COBB','HENRY','FORSYTH','CHEROKEE','DOUGLAS','FAYETTE','PAULDING'];
+  document.getElementById('compare-pres-table').innerHTML = presRows.length
+    ? '<table class="elect-table"><thead><tr><th>Year</th><th>Dem%</th><th>Rep%</th><th>Margin</th><th>D Co.</th></tr></thead><tbody>' +
+      presRows.map(s => {
+        const d=s.margin>0;
+        return '<tr><td style="font-family:var(--mono);font-weight:600">' + s.year + '</td>' +
+          '<td style="color:var(--dem);font-family:var(--mono)">' + s.dem_pct + '%</td>' +
+          '<td style="color:var(--rep);font-family:var(--mono)">' + s.rep_pct + '%</td>' +
+          '<td style="color:' + (d?'var(--dem)':'var(--rep)') + ';font-family:var(--mono);font-weight:700">' + (d?'D':'R') + '+' + Math.abs(s.margin).toFixed(1) + '</td>' +
+          '<td style="font-family:var(--mono)">' + s.dem_counties + '</td></tr>';
+      }).join('') + '</tbody></table>'
+    : '<div style="padding:8px;font-size:0.72rem;color:var(--muted)">No presidential data loaded</div>';
+  const headerCols = presYears.map(y=>'<th>' + y + '</th>').join('');
+  const tableRows  = suburban.map(county => {
+    const cols = presYears.map(yr => {
+      const row = elections.find(e=>e.election_id==='pres_'+yr && e.county===county);
+      if (!row) return '<td style="color:var(--muted)">&#8212;</td>';
+      const d=row.margin>0;
+      return '<td style="color:' + (d?'var(--dem)':'var(--rep)') + ';font-family:var(--mono);font-size:0.68rem;font-weight:600">' + (d?'D':'R') + '+' + Math.abs(row.margin).toFixed(1) + '</td>';
+    }).join('');
+    return '<tr><td style="font-weight:500;font-size:0.7rem">' + county + '</td>' + cols + '</tr>';
+  }).join('');
+  document.getElementById('compare-suburban').innerHTML = presYears.length
+    ? '<table class="elect-table"><thead><tr><th>County</th>' + headerCols + '</tr></thead><tbody>' + tableRows + '</tbody></table>'
+    : '<div style="padding:8px;font-size:0.72rem;color:var(--muted)">Need multiple presidential elections</div>';
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function switchTab(e, id) {
+  switchTabById(id);
+  e.target.classList.add('active');
+}
+
+function switchTabById(id) {
+  const tabs     = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+  tabs.forEach(t=>t.classList.remove('active'));
+  contents.forEach(c=>c.classList.remove('active'));
+  contents.forEach((c,i) => { if (c.id === 'tab-' + id) { c.classList.add('active'); tabs[i]?.classList.add('active'); } });
+}
+
+function exportCSV(type) {
+  let rows, filename;
+  if (type==='elections'    && currentElectionId)  { rows=allElections.filter(e=>e.election_id===currentElectionId); filename=currentElectionId+'_counties.csv'; }
+  else if (type==='swings'  && currentSwingLabel)  { rows=allSwings.filter(s=>s.swing_label===currentSwingLabel); filename='swings_'+currentSwingLabel.replace(/[^a-z0-9]/gi,'_')+'.csv'; }
+  else if (type==='demographics')                  { rows=allDistricts[currentChamber]; filename=currentChamber+'_demographics.csv'; }
+  else if (type==='compare')                       { rows=allElections.filter(e=>e.office==='president'); filename='presidential_county_comparison.csv'; }
+  else return;
+  if (!rows||!rows.length) return;
+  const blob = new Blob([Object.keys(rows[0]).join(',')+'\n'+rows.map(r=>Object.values(r).join(',')).join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+}
+
+init();
+</script>
+</body>
+</html>
