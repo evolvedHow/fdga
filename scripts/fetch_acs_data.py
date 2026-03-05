@@ -66,7 +66,8 @@ BATCH_2 = [
     ("C24010_019E", "emp_service",           "Service occupations"),
     ("C24010_033E", "emp_sales_office",      "Sales and office occupations"),
     ("C24010_039E", "emp_natural_resources", "Natural resources/construction/maintenance"),
-    ("C24010_045E", "emp_production",        "Production/transportation/material moving"),
+    ("C24010_027E", "emp_production_male",   "Male production/transportation workers"),
+    ("C24010_045E", "emp_production_female", "Female production/transportation workers"),
     # Commute — B08303 travel time to work
     ("B08303_001E", "commute_universe",      "Commute universe"),
     ("B08303_012E", "commute_60_89min",      "Commute 60-89 min"),
@@ -138,7 +139,7 @@ def fetch_all():
     df["pct_broadband"]     = (df["broadband_access"]   / df["internet_universe"]       * 100).round(1)
     df["pct_foreign_born"]  = (df["foreign_born"]       / df["nativity_universe"]       * 100).round(1)
     df["pct_white_collar"]  = (df["emp_mgmt_business"]  / df["employed_universe"]       * 100).round(1)
-    df["pct_blue_collar"]   = (df["emp_production"]     / df["employed_universe"]       * 100).round(1)
+    df["pct_blue_collar"]   = ((df["emp_production_male"] + df["emp_production_female"]) / df["employed_universe"] * 100).round(1)
     df["pct_service"]       = (df["emp_service"]        / df["employed_universe"]       * 100).round(1)
     df["pct_long_commute"]  = ((df["commute_60_89min"]  + df["commute_90plus_min"])
                                / df["commute_universe"] * 100).round(1)

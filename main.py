@@ -2,7 +2,7 @@
 Fair Districts GA — FastAPI Application
 """
 
-import os, json, math
+import os, json, math, hashlib, sqlite3
 from pathlib import Path
 from contextlib import asynccontextmanager
 
@@ -20,19 +20,94 @@ DATA_DIR   = Path(os.getenv("LOCAL_DATA_DIR", str(BASE_DIR / "data")))
 CHARTS_DIR = DATA_DIR / "charts"
 CHARTS_DIR.mkdir(parents=True, exist_ok=True)
 
+# ── Narrative SQLite cache ────────────────────────────────────────────────────
+_NARRATIVE_DB = DATA_DIR / "narratives.db"
+
+def _init_narrative_db():
+    con = sqlite3.connect(_NARRATIVE_DB)
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS narratives (
+            chamber        TEXT    NOT NULL,
+            district       INTEGER NOT NULL,
+            data_hash      TEXT    NOT NULL,
+            narrative      TEXT    NOT NULL,
+            red_flag_level TEXT,
+            red_flag_reason TEXT,
+            advocate_points TEXT,
+            fair_map_note   TEXT,
+            model_source    TEXT,
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (chamber, district)
+        )
+    """)
+    con.commit()
+    con.close()
+
+def _parquet_hash() -> str:
+    """Short hash derived from district_stats.parquet mtime — changes on re-ingest."""
+    p = DATA_DIR / "parquet" / "district_stats.parquet"
+    if p.exists():
+        return hashlib.md5(str(p.stat().st_mtime_ns).encode()).hexdigest()[:12]
+    return "unknown"
+
+def _narrative_cache_get(chamber: str, district: int, data_hash: str) -> dict | None:
+    con = sqlite3.connect(_NARRATIVE_DB)
+    con.row_factory = sqlite3.Row
+    row = con.execute(
+        "SELECT * FROM narratives WHERE chamber=? AND district=? AND data_hash=?",
+        (chamber, district, data_hash)
+    ).fetchone()
+    con.close()
+    if row:
+        return dict(row)
+    return None
+
+def _narrative_cache_set(chamber: str, district: int, data_hash: str, result: dict):
+    advocate_json = json.dumps(result.get("advocate_points") or [])
+    con = sqlite3.connect(_NARRATIVE_DB)
+    con.execute("""
+        INSERT INTO narratives
+            (chamber, district, data_hash, narrative, red_flag_level,
+             red_flag_reason, advocate_points, fair_map_note, model_source)
+        VALUES (?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(chamber, district) DO UPDATE SET
+            data_hash=excluded.data_hash,
+            narrative=excluded.narrative,
+            red_flag_level=excluded.red_flag_level,
+            red_flag_reason=excluded.red_flag_reason,
+            advocate_points=excluded.advocate_points,
+            fair_map_note=excluded.fair_map_note,
+            model_source=excluded.model_source,
+            created_at=CURRENT_TIMESTAMP
+    """, (
+        chamber, district, data_hash,
+        result.get("narrative") or "",
+        result.get("red_flag_level"), result.get("red_flag_reason"),
+        advocate_json,
+        result.get("fair_map_note"),
+        result.get("source"),
+    ))
+    con.commit()
+    con.close()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting Fair Districts GA...")
+    _init_narrative_db()
     data_files = list(DATA_DIR.glob("*_districts.csv"))
     print(f"  Data: {len(data_files)} district CSV files")
     print(f"  LLM: {os.getenv('LLM_PROVIDER', 'ollama')}")
+    print(f"  Narrative cache: {_NARRATIVE_DB}")
     print(f"  Frontend: http://localhost:{os.getenv('PORT', 8000)}")
     yield
     print("Shutting down.")
 
 
 app = FastAPI(title="Fair Districts GA", version="2.0.0", lifespan=lifespan)
+
+# In-memory cache for district metrics — data is static at runtime, no TTL needed
+_metrics_cache: dict[str, dict] = {}
 
 app.add_middleware(
     CORSMiddleware,
@@ -132,8 +207,7 @@ async def get_swings(pair: str = None):
     if not sp.exists():
         raise HTTPException(status_code=404, detail="Run fetch_election_data.py first")
     import duckdb
-    where = f"WHERE swing_label = '{pair}'" if pair else ""
-    rows = duckdb.execute(f"""
+    sql = f"""
         SELECT county, swing_label, from_id, to_id,
                year_from, year_to,
                ROUND(swing*100,1)    AS swing_pp,
@@ -141,9 +215,11 @@ async def get_swings(pair: str = None):
                ROUND(m_to*100,1)     AS margin_to,
                swing_dir
         FROM read_parquet('{sp}')
-        {where}
-        ORDER BY ABS(swing) DESC
-    """).df().to_dict(orient="records")
+    """
+    if pair:
+        rows = duckdb.execute(sql + " WHERE swing_label = ? ORDER BY ABS(swing) DESC", [pair]).df().to_dict(orient="records")
+    else:
+        rows = duckdb.execute(sql + " ORDER BY ABS(swing) DESC").df().to_dict(orient="records")
     return rows
 
 # ── ACS county socioeconomic data ─────────────────────────────────────────────
@@ -176,6 +252,8 @@ async def get_district_metrics(chamber: str):
     }
     if chamber not in FILE_MAP:
         raise HTTPException(status_code=400, detail=f"Unknown chamber: {chamber}")
+    if chamber in _metrics_cache:
+        return _metrics_cache[chamber]
     path = DATA_DIR / FILE_MAP[chamber]
     if not path.exists():
         raise HTTPException(status_code=404, detail=f"File not found: {path.name}")
@@ -244,7 +322,7 @@ async def get_district_metrics(chamber: str):
         if r["pop"] and ideal_pop:
             r["pop_deviation_pct"] = round((r["pop"] - ideal_pop) / ideal_pop * 100, 2)
 
-    return {
+    result = {
         "chamber":             chamber,
         "n_districts":         n,
         "efficiency_gap":      round(efficiency_gap * 100, 2),
@@ -256,9 +334,48 @@ async def get_district_metrics(chamber: str):
         "avg_compactness":     round(sum(r["polsby_popper"] for r in results if r["polsby_popper"]) / n, 3),
         "districts":           sorted(results, key=lambda x: x["district"]),
     }
+    _metrics_cache[chamber] = result
+    return result
+
+@app.get("/api/narratives/recent")
+async def get_recent_narratives(limit: int = 10):
+    """Return the most recently generated narratives from SQLite cache."""
+    con = sqlite3.connect(_NARRATIVE_DB)
+    con.row_factory = sqlite3.Row
+    rows = con.execute(
+        "SELECT chamber, district, red_flag_level, red_flag_reason, model_source, created_at "
+        "FROM narratives ORDER BY created_at DESC LIMIT ?",
+        (min(limit, 50),)
+    ).fetchall()
+    con.close()
+    return [dict(r) for r in rows]
+
 
 @app.get("/api/districts/{chamber}/{district_id}/narrative")
-async def get_district_narrative(chamber: str, district_id: int):
+async def get_district_narrative(chamber: str, district_id: int, force: bool = False):
+    # ── Cache lookup ─────────────────────────────────────────────────────────
+    data_hash = _parquet_hash()
+    if not force:
+        cached = _narrative_cache_get(chamber, district_id, data_hash)
+        if cached:
+            advocate_points = []
+            try:
+                advocate_points = json.loads(cached.get("advocate_points") or "[]")
+            except Exception:
+                pass
+            return {
+                "district":       district_id,
+                "chamber":        chamber,
+                "narrative":      cached["narrative"],
+                "red_flag_level": cached.get("red_flag_level"),
+                "red_flag_reason":cached.get("red_flag_reason"),
+                "advocate_points":advocate_points,
+                "fair_map_note":  cached.get("fair_map_note"),
+                "source":         cached.get("model_source"),
+                "cached":         True,
+                "cached_at":      cached.get("created_at"),
+            }
+
     metrics_response = await get_district_metrics(chamber)
     dist_data = next((d for d in metrics_response["districts"] if d["district"] == district_id), None)
     if not dist_data:
@@ -346,6 +463,13 @@ STATEWIDE MAP CONTEXT:
 Write the narrative now. Be specific, direct, and analytical. No bullet points."""
 
     import httpx
+
+    def _build_result(narrative: str, source: str) -> dict:
+        result = {"district": district_id, "chamber": chamber,
+                  "narrative": narrative, "source": source, "data": dist_data, "cached": False}
+        _narrative_cache_set(chamber, district_id, data_hash, result)
+        return result
+
     # Try Ollama
     try:
         ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -358,8 +482,7 @@ Write the narrative now. Be specific, direct, and analytical. No bullet points."
             })
             if r.status_code == 200:
                 narrative = r.json().get("response", "").strip()
-                return {"district": district_id, "chamber": chamber,
-                        "narrative": narrative, "source": f"ollama/{ollama_model}", "data": dist_data}
+                return _build_result(narrative, f"ollama/{ollama_model}")
     except Exception as e:
         print(f"Ollama error: {e}")
 
@@ -377,13 +500,12 @@ Write the narrative now. Be specific, direct, and analytical. No bullet points."
                 )
                 if r.status_code == 200:
                     narrative = r.json()["choices"][0]["message"]["content"].strip()
-                    return {"district": district_id, "chamber": chamber,
-                            "narrative": narrative, "source": "groq", "data": dist_data}
+                    return _build_result(narrative, "groq")
         except Exception:
             pass
 
     return {"district": district_id, "chamber": chamber, "narrative": None,
-            "source": "none", "data": dist_data,
+            "source": "none", "data": dist_data, "cached": False,
             "error": "No LLM available. Set GROQ_API_KEY or run Ollama locally."}
 
 # ── Generic district data (MUST come after specific routes above) ─────────────

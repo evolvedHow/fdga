@@ -1,0 +1,249 @@
+/* ── FDGA Shared Sidebar ─────────────────────────────────────────────────── */
+:root {
+  --sidebar-w: 48px;
+  --sidebar-bg: #0d0d0d;
+  --sidebar-border: #1f1f1f;
+  --sidebar-icon: #666;
+  --sidebar-icon-hover: #ccc;
+  --sidebar-icon-active: #fff;
+  --sidebar-active-accent: #c90000;
+  --sidebar-tooltip-bg: #1a1a1a;
+  --sidebar-tooltip-color: #e8e8e8;
+}
+
+/* Shell wrapper — wraps sidebar + page content */
+#shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* The icon rail */
+#fdga-sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 500;
+  overflow: visible;
+}
+
+/* Logo mark at top */
+#fdga-sidebar-logo {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+#fdga-sidebar-logo a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--sidebar-active-accent);
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Nav items */
+.fdga-nav-items {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.fdga-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sidebar-w);
+  height: 44px;
+  color: var(--sidebar-icon);
+  text-decoration: none;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: color 0.12s, background 0.12s;
+}
+
+.fdga-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.fdga-nav-item:hover {
+  color: var(--sidebar-icon-hover);
+  background: rgba(255,255,255,0.04);
+}
+
+.fdga-nav-item.active {
+  color: var(--sidebar-icon-active);
+  border-left-color: var(--sidebar-active-accent);
+  background: rgba(201,0,0,0.08);
+}
+
+/* Hover tooltip label */
+.fdga-nav-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(var(--sidebar-w) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--sidebar-tooltip-bg);
+  color: var(--sidebar-tooltip-color);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 1000;
+}
+
+.fdga-nav-item:hover::after {
+  opacity: 1;
+}
+
+/* Footer section */
+.fdga-sidebar-footer {
+  padding: 8px 0;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* ── Welcome Modal ──────────────────────────────────────────────────────── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.welcome-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.welcome-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 40px;
+  max-width: 520px;
+  width: calc(100vw - 32px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  transform: translateY(12px);
+  transition: transform 0.25s ease;
+}
+
+.welcome-overlay.visible .welcome-card {
+  transform: translateY(0);
+}
+
+.welcome-logo {
+  height: 40px;
+  display: block;
+  margin: 0 auto 16px;
+}
+
+.welcome-card h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0d0d0d;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.welcome-card p {
+  font-size: 0.88rem;
+  color: #555;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.welcome-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.welcome-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+  border: none;
+  width: 100%;
+}
+
+.welcome-btn:active { transform: scale(0.98); }
+
+.welcome-btn-primary {
+  background: #c90000;
+  color: #fff;
+}
+.welcome-btn-primary:hover { background: #a50000; }
+
+.welcome-btn-secondary {
+  background: #f4f4f4;
+  color: #222;
+  border: 1px solid #e0e0e0;
+}
+.welcome-btn-secondary:hover { background: #e8e8e8; }
+
+.welcome-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #999;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.welcome-dismiss input[type=checkbox] {
+  accent-color: #c90000;
+  cursor: pointer;
+}
+
+/* ── Responsive: hide sidebar on very small screens ───────────────────── */
+@media (max-width: 600px) {
+  #fdga-sidebar { display: none; }
+  #shell { flex-direction: column; }
+}

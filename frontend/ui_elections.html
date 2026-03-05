@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/sidebar.css">
 <style>
 :root {
   --black:#0d0d0d;--red:#c90000;--bg:#f4f2ee;--panel:#ffffff;
@@ -15,15 +16,17 @@
   --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
-.topbar{background:var(--black);display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:2px solid var(--red);height:50px;flex-shrink:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+#shell{height:100vh;overflow:hidden;}
+#page-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;min-width:0;height:100vh;}
+.topbar{background:var(--black);display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid #1a1a1a;height:56px;flex-shrink:0;}
 .logo{width:28px;height:28px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.65rem;font-weight:800;flex-shrink:0;}
 .topbar-title{color:#fff;font-size:0.9rem;font-weight:600;flex:1;}
 .topbar-back{color:#aaa;font-size:0.72rem;text-decoration:none;display:flex;align-items:center;gap:5px;border:1px solid #333;padding:4px 10px;border-radius:4px;}
 .topbar-back:hover{color:#fff;border-color:#666;}
 .topbar-pill{background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:2px 9px;font-size:0.68rem;color:#aaa;}
 .topbar-pill.live{color:#4ade80;border-color:#166534;background:#052e16;}
-.body{display:grid;grid-template-columns:285px 1fr 380px;flex:1;overflow:hidden;}
+.body{display:grid;grid-template-columns:285px 1fr 380px;flex:1;overflow:hidden;min-height:0;}
 .panel{background:var(--panel);display:flex;flex-direction:column;overflow:hidden;}
 .panel-left{border-right:1px solid var(--border);overflow-y:auto;}
 .panel-right{border-left:1px solid var(--border);}
@@ -79,6 +82,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .swing{font-family:var(--mono);font-size:0.68rem;font-weight:600;padding:2px 5px;border-radius:3px;}
 .swing-d{background:#dbeafe;color:#1e40af;}
 .swing-r{background:#fee2e2;color:#991b1b;}
+/* Map locate */
+#analytics-locate{position:absolute;top:12px;left:12px;z-index:20;display:flex;align-items:center;gap:7px;background:rgba(13,13,13,0.88);border-radius:6px;padding:7px 10px;box-shadow:0 2px 10px rgba(0,0,0,0.4);backdrop-filter:blur(4px);}
+#analytics-locate svg{color:#888;flex-shrink:0;}
+#analytics-locate-input{border:none;outline:none;font-size:0.78rem;font-family:var(--font);width:160px;background:transparent;color:#fff;}
+#analytics-locate-input::placeholder{color:#666;}
 /* Demog rows */
 .dist-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.72rem;}
 .dist-row:last-child{border:none;}
@@ -117,6 +125,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 .spark-val{font-size:0.6rem;font-weight:700;margin-top:1px;}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
+/* ── District filter bar ────────────────────────────────────── */
+.filter-bar{display:flex;gap:5px;align-items:center;margin-bottom:7px;}
+.filter-input{min-width:0;flex:1;border:1px solid var(--border);border-radius:4px;padding:5px 7px;font-size:0.72rem;font-family:var(--font);background:var(--panel);color:var(--text);}
+.filter-input:focus{outline:none;border-color:#999;}
+.filter-reset-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.7rem;color:var(--muted);flex-shrink:0;}
+.filter-reset-btn:hover{border-color:#999;color:var(--text);}
+.filter-chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;}
+.filter-chip{font-size:0.62rem;font-weight:600;padding:3px 8px;border-radius:10px;border:1px solid var(--border);cursor:pointer;color:var(--muted);background:var(--bg);}
+.filter-chip.active{background:var(--black);color:#fff;border-color:var(--black);}
+.dist-row{cursor:pointer;}
+.dist-row:hover{background:#f9f8f5;}
+.pp-badge{font-size:0.59rem;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px;}
 .fdga-popup .mapboxgl-popup-content{background:transparent;padding:0;box-shadow:0 4px 20px rgba(0,0,0,0.5);border-radius:6px;}
 .fdga-popup .mapboxgl-popup-tip{border-top-color:#1a1a2e;border-bottom-color:#1a1a2e;}
 .fdga-popup .mapboxgl-popup-close-button{color:#aaa;font-size:1rem;padding:4px 8px;top:2px;right:2px;}
@@ -125,13 +145,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 </head>
 <body>
 
+<div id="shell">
+<div id="page-wrap">
+
 <div class="topbar">
-  <div class="logo">FD</div>
   <span class="topbar-title">Fair Districts GA &#8212; Analytics</span>
-  <a href="/" class="topbar-back">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    Map
-  </a>
   <span class="topbar-pill live" id="data-badge">&#9679; Loading&#8230;</span>
   <span class="topbar-pill" id="mode-badge">Elections mode</span>
 </div>
@@ -173,6 +191,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
 
   <!-- CENTER -->
   <div class="map-area">
+    <!-- Locate widget -->
+    <div id="analytics-locate">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input id="analytics-locate-input" type="text" placeholder="County or district #…" autocomplete="off">
+    </div>
     <div class="counter-bar">
       <div class="cnt"><span class="cnt-n" id="cnt-dem">&#8212;</span><span class="cnt-l">Dem co.</span></div>
       <div class="cnt-div"></div>
@@ -247,6 +272,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       <div class="card" id="demog-stats-card">
         <div class="loading"><div class="spinner"></div> Select Demographics mode</div>
       </div>
+      <div class="card" id="dist-filter-card">
+        <div class="card-title" style="margin-bottom:7px">Filter Districts</div>
+        <div class="filter-bar">
+          <input type="text"   id="dist-search" class="filter-input" placeholder="District #" style="max-width:76px" oninput="applyFilter()">
+          <input type="number" id="filter-min"   class="filter-input" placeholder="Min %" min="0" max="100" oninput="applyFilter()">
+          <input type="number" id="filter-max"   class="filter-input" placeholder="Max %" min="0" max="100" oninput="applyFilter()">
+          <button class="filter-reset-btn" onclick="resetFilter()" title="Clear filters">&#10005;</button>
+        </div>
+        <div class="filter-chips">
+          <span class="filter-chip active" id="fc-all"   onclick="setQuickFilter('all')">All</span>
+          <span class="filter-chip"        id="fc-maj"   onclick="setQuickFilter('maj')">&#8805;50%</span>
+          <span class="filter-chip"        id="fc-near"  onclick="setQuickFilter('near')">45&#8211;55%</span>
+          <span class="filter-chip"        id="fc-comp"  onclick="setQuickFilter('comp')">Competitive</span>
+          <span class="filter-chip"        id="fc-ppbad" onclick="setQuickFilter('ppbad')">PP Grade D/F</span>
+        </div>
+        <div id="filter-status" style="font-size:0.67rem;color:var(--muted)"></div>
+      </div>
       <div class="card">
         <div class="card-title" id="demog-list-title">Districts by Black VAP %</div>
         <div id="demog-dist-list"><div class="loading"><div class="spinner"></div></div></div>
@@ -277,9 +319,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh
       </button>
     </div>
   </div>
-</div>
+</div><!-- /.body -->
+</div><!-- /#page-wrap -->
+</div><!-- /#shell -->
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script src="/js/sidebar.js"></script>
 <script>
 const API = '';
 let allElections = [], allSwings = [], allSummary = [], swingPairIndex = [];
@@ -288,6 +333,10 @@ let currentElectionId = null, currentSwingLabel = null, currentMode = 'elections
 let currentChamber = 'senate', currentDemogMeasure = 'pct_bvp';
 let currentDemogLabel = 'Black VAP %', currentDemogColor = '#7c3aed';
 let _map = null, mapReady = false, countyGeojson = null, districtGeojson = null;
+// ── Filter state ──────────────────────────────────────────────────────────────
+let filterDistSearch = '', filterMin = null, filterMax = null;
+let filterPPBad = false, filterCompetitive = false;
+let allMetrics = { senate: {}, house: {}, congress: {} };
 
 const KEY_COUNTIES = ['FULTON','DEKALB','GWINNETT','COBB','HENRY','FORSYTH',
                       'CHEROKEE','DOUGLAS','ROCKDALE','DOUGHERTY','MUSCOGEE','CHATHAM'];
@@ -519,10 +568,12 @@ function hideTooltip() {
 
 // Show/hide correct layer set
 function showCountyLayers(show) {
+  if (!mapReady) return;
   const v = show ? 'visible' : 'none';
   ['county-fill','county-outline','county-hover'].forEach(id => _map.setLayoutProperty(id,'visibility',v));
 }
 function showDistrictLayers(show) {
+  if (!mapReady) return;
   const v = show ? 'visible' : 'none';
   ['district-fill','district-outline','district-hover'].forEach(id => _map.setLayoutProperty(id,'visibility',v));
 }
@@ -558,6 +609,7 @@ function paintSwings(label) {
 async function paintDemographics() {
   if (!mapReady) return;
   showCountyLayers(false); showDistrictLayers(true);
+  loadMetrics(currentChamber); // fire-and-forget; re-renders list with PP badges when done
 
   // Load district GeoJSON if not yet cached
   const chamberFile = {senate:'senate_enacted_24_2024update.geojson', house:'house_enacted_24_2024update.geojson', congress:'congress_enacted_24_2024update.geojson'};
@@ -673,24 +725,13 @@ function renderDemogTab() {
       '<div class="stat-box"><div class="stat-val">' + maxVal.toFixed(1) + '%</div><div class="stat-lbl">Max</div></div>' +
     '</div>';
 
-  // Ranked district list
+  // Ranked district list — rendered via renderFilteredDistList() to respect active filters
   document.getElementById('demog-list-title').textContent = chamberLabel + ' Districts by ' + currentDemogLabel;
-  const sorted = [...rows].sort((a,b) => b[currentDemogMeasure] - a[currentDemogMeasure]);
-  document.getElementById('demog-dist-list').innerHTML = sorted.map(r => {
-    const val = r[currentDemogMeasure];
-    const pct = Math.min(val / 75 * 100, 100);
-    const near = (val >= 45 && val <= 55) ? '<span class="alert-badge">Near 50%</span>' : '';
-    const maj  = val >= 50 ? '<span class="alert-badge" style="background:#dcfce7;color:#166534">Majority</span>' : '';
-    return '<div class="dist-row">' +
-      '<span class="dist-num" style="color:' + currentDemogColor + '">' + r.district + '</span>' +
-      '<div class="dist-bar-bg"><div class="dist-bar-fill" style="width:' + pct + '%;background:' + currentDemogColor + '"></div></div>' +
-      '<span class="dist-pct">' + val + '%</span>' +
-      maj + near +
-      '</div>';
-  }).join('');
+  renderFilteredDistList();
 
   // Threshold districts
-  const threshold = sorted.filter(r => r[currentDemogMeasure] >= 45 && r[currentDemogMeasure] <= 55);
+  const threshold = rows.filter(r => r[currentDemogMeasure] >= 45 && r[currentDemogMeasure] <= 55)
+                        .sort((a, b) => b[currentDemogMeasure] - a[currentDemogMeasure]);
   document.getElementById('demog-threshold-list').innerHTML = threshold.length
     ? threshold.map(r => {
         const val = r[currentDemogMeasure];
@@ -702,6 +743,150 @@ function renderDemogTab() {
           '</div>';
       }).join('')
     : '<div style="padding:6px;font-size:0.72rem;color:var(--muted)">No districts in 45&#8211;55% range</div>';
+}
+
+// ── District filter ───────────────────────────────────────────────────────────
+async function loadMetrics(chamber) {
+  if (Object.keys(allMetrics[chamber]).length) return; // already cached
+  try {
+    const data = await fetch('/api/districts/' + chamber + '/metrics').then(r => r.json());
+    allMetrics[chamber] = {};
+    (data.districts || []).forEach(d => { allMetrics[chamber][d.district] = d; });
+    renderFilteredDistList(); // re-render with PP badges now available
+  } catch(e) { /* metrics endpoint unavailable — PP filter will show nothing */ }
+}
+
+function applyFilter() {
+  const searchVal = (document.getElementById('dist-search').value || '').trim();
+  const minVal    = parseFloat(document.getElementById('filter-min').value);
+  const maxVal    = parseFloat(document.getElementById('filter-max').value);
+  filterDistSearch = searchVal;
+  filterMin = isNaN(minVal) ? null : minVal;
+  filterMax = isNaN(maxVal) ? null : maxVal;
+  renderFilteredDistList();
+}
+
+function resetFilter() {
+  document.getElementById('dist-search').value = '';
+  document.getElementById('filter-min').value  = '';
+  document.getElementById('filter-max').value  = '';
+  filterDistSearch = ''; filterMin = null; filterMax = null;
+  filterPPBad = false; filterCompetitive = false;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('fc-all').classList.add('active');
+  renderFilteredDistList();
+}
+
+function setQuickFilter(type) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  document.getElementById('fc-' + type).classList.add('active');
+  filterPPBad = false; filterCompetitive = false;
+  const minEl = document.getElementById('filter-min');
+  const maxEl = document.getElementById('filter-max');
+  minEl.value = ''; maxEl.value = ''; filterMin = null; filterMax = null;
+  if (type === 'maj')   { minEl.value = '50'; filterMin = 50; }
+  if (type === 'near')  { minEl.value = '45'; maxEl.value = '55'; filterMin = 45; filterMax = 55; }
+  if (type === 'comp')  { filterCompetitive = true; }
+  if (type === 'ppbad') { filterPPBad = true; }
+  renderFilteredDistList();
+}
+
+function renderFilteredDistList() {
+  const rows = allDistricts[currentChamber];
+  if (!rows || !rows.length) return;
+  const metrics = allMetrics[currentChamber];
+  let filtered = [...rows].sort((a, b) => b[currentDemogMeasure] - a[currentDemogMeasure]);
+
+  if (filterDistSearch) {
+    filtered = filtered.filter(r => String(r.district).includes(filterDistSearch));
+  }
+  if (filterMin !== null) filtered = filtered.filter(r => r[currentDemogMeasure] >= filterMin);
+  if (filterMax !== null) filtered = filtered.filter(r => r[currentDemogMeasure] <= filterMax);
+  if (filterPPBad) {
+    const hasMetrics = Object.keys(metrics).length > 0;
+    if (hasMetrics) {
+      filtered = filtered.filter(r => { const m = metrics[r.district]; return m && m.polsby_popper != null && m.polsby_popper < 0.20; });
+    }
+    // if metrics not yet loaded, show all (loadMetrics will re-render when done)
+  }
+  if (filterCompetitive) {
+    filtered = filtered.filter(r => Math.abs(r.partisan - 50) <= 5);
+  }
+
+  const statusEl = document.getElementById('filter-status');
+  if (statusEl) statusEl.textContent = filtered.length < rows.length ? 'Showing ' + filtered.length + ' of ' + rows.length + ' districts' : '';
+
+  document.getElementById('demog-dist-list').innerHTML = filtered.length
+    ? filtered.map(r => {
+        const val  = r[currentDemogMeasure];
+        const pct  = Math.min(val / 75 * 100, 100);
+        const near = val >= 45 && val <= 55 ? '<span class="alert-badge">Near 50%</span>' : '';
+        const maj  = val >= 50 ? '<span class="alert-badge" style="background:#dcfce7;color:#166534">Majority</span>' : '';
+        const m    = metrics[r.district];
+        let ppBadge = '';
+        if (m && m.polsby_popper != null) {
+          const bad = m.polsby_popper < 0.20;
+          ppBadge = '<span class="pp-badge" style="background:' + (bad ? '#fee2e2' : '#f3f4f6') + ';color:' + (bad ? '#991b1b' : '#555') + '">PP\u00a0' + m.polsby_popper.toFixed(2) + '</span>';
+        }
+        return '<div class="dist-row" onclick="flyToDistrict(' + r.district + ')">' +
+          '<span class="dist-num" style="color:' + currentDemogColor + '">' + r.district + '</span>' +
+          '<div class="dist-bar-bg"><div class="dist-bar-fill" style="width:' + pct + '%;background:' + currentDemogColor + '"></div></div>' +
+          '<span class="dist-pct">' + val + '%</span>' +
+          maj + near + ppBadge + '</div>';
+      }).join('')
+    : '<div style="padding:8px;font-size:0.72rem;color:var(--muted)">No districts match filter</div>';
+}
+
+function flyToDistrict(distNum) {
+  if (!mapReady || !districtGeojson) return;
+  _map.setFilter('district-hover', ['==', 'district', distNum]);
+  const feat = districtGeojson.features.find(f => f.properties.district === distNum);
+  if (!feat) return;
+  const coords = feat.geometry.type === 'MultiPolygon'
+    ? feat.geometry.coordinates[0][0]
+    : feat.geometry.coordinates[0];
+  const lngs = coords.map(c => c[0]);
+  const lats  = coords.map(c => c[1]);
+  _map.flyTo({
+    center: [(Math.min(...lngs) + Math.max(...lngs)) / 2, (Math.min(...lats) + Math.max(...lats)) / 2],
+    zoom: 8, duration: 600,
+  });
+}
+
+// ── Map locate ────────────────────────────────────────────────────────────────
+function locateOnMap(raw) {
+  const query = (raw || '').trim();
+  if (!query || !mapReady) return;
+
+  // If it's a number, try district# first (in demographics mode), else county FIPS match
+  const num = parseInt(query, 10);
+  if (!isNaN(num) && currentMode === 'demographics' && districtGeojson) {
+    flyToDistrict(num);
+    return;
+  }
+
+  // County name search (case-insensitive, prefix match)
+  if (countyGeojson) {
+    const q = query.toUpperCase().replace(' COUNTY', '').trim();
+    const feat = countyGeojson.features.find(f =>
+      f.properties._county === q || f.properties._county.startsWith(q)
+    );
+    if (feat) {
+      const coords = feat.geometry.type === 'MultiPolygon'
+        ? feat.geometry.coordinates.flatMap(p => p.flatMap(r => r))
+        : feat.geometry.coordinates.flatMap(r => r);
+      const lngs = coords.map(c => c[0]);
+      const lats  = coords.map(c => c[1]);
+      _map.fitBounds(
+        [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+        { padding: 40, duration: 600 }
+      );
+      return;
+    }
+  }
+
+  // Fallback: if in demographics mode and it's a number
+  if (!isNaN(num) && districtGeojson) flyToDistrict(num);
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
@@ -733,6 +918,14 @@ async function init() {
     buildCompare(elections, summary);
     renderDemogTab();
     initMap();
+
+    // Wire up locate input
+    const locateInput = document.getElementById('analytics-locate-input');
+    if (locateInput) {
+      locateInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { locateOnMap(locateInput.value); locateInput.blur(); }
+      });
+    }
 
     if (summary.length > 0) selectElection(summary[summary.length-1].election_id);
     if (pairs.length   > 0) selectSwing(pairs[0].swing_label);

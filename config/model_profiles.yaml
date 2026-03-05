@@ -1,0 +1,145 @@
+# ============================================================
+# Model Response Profiles — Fair Districts GA
+# ============================================================
+# Each profile defines a named combination of model, temperature,
+# and sampling parameters tuned for a specific reasoning style.
+#
+# Assign profiles to agents by name:
+#   llm=get_profile("precise_analyst")
+#
+# Provider resolution order:
+#   1. If LLM_PROVIDER=groq  → use cloud_model (falls back to ollama)
+#   2. If LLM_PROVIDER=gemini → use cloud_model (falls back to ollama)
+#   3. Default               → use ollama_model
+#   4. If ollama_model not pulled locally → use ollama_fallback
+#
+# Parameter guide:
+#   temperature    Low (0.0-0.1) = deterministic/precise
+#                  Med (0.2-0.4) = balanced
+#                  High (0.5+)   = creative/varied
+#   top_k          How many tokens to consider at each step
+#                  Low = conservative, High = more varied vocabulary
+#   top_p          Nucleus sampling threshold (0.0-1.0)
+#                  Lower = more focused, Higher = more diverse
+#   repeat_penalty Penalizes repeating the same phrases
+#                  > 1.0 = less repetition, 1.0 = no penalty
+# ============================================================
+
+profiles:
+
+  # ── Precise Analyst ───────────────────────────────────────
+  # For: Demographer, Elections Analyst, Geographer, Legal Analyst
+  # Goal: Structured, deterministic, numbered findings.
+  #       No creativity needed — accuracy is everything.
+  precise_analyst:
+    description: "Structured data analysis — deterministic, accurate, no creativity"
+    ollama_model: llama3:8b
+    ollama_fallback: llama3.2:3b
+    cloud_model: groq/llama-3.3-70b-versatile
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.05
+    top_k: 10
+    top_p: 0.80
+    repeat_penalty: 1.15
+    num_ctx: 4096
+    best_for:
+      - demographer
+      - elections_analyst
+      - geographer
+      - legal_analyst
+
+  # ── Deep Reasoner ─────────────────────────────────────────
+  # For: Socioeconomic Analyst
+  # Goal: Multi-source synthesis, connecting disparate data points,
+  #       pattern recognition across ACS metrics.
+  deep_reasoner:
+    description: "Multi-source reasoning — connects patterns across complex inputs"
+    ollama_model: deepseek-r1:8b
+    ollama_fallback: llama3:8b
+    cloud_model: groq/llama-3.3-70b-versatile
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.15
+    top_k: 30
+    top_p: 0.88
+    repeat_penalty: 1.10
+    num_ctx: 8192
+    best_for:
+      - socioeconomic_analyst
+
+  # ── Creative Writer ────────────────────────────────────────
+  # For: Policy Writer
+  # Goal: Journalistic prose. Varied sentence structure.
+  #       Must synthesize 5 expert findings without losing any.
+  #       Needs enough temperature for natural language flow
+  #       but not so much it hallucinates.
+  creative_writer:
+    description: "Journalistic narrative synthesis — clear prose from expert inputs"
+    ollama_model: deepseek-r1:8b
+    ollama_fallback: llama3:8b
+    cloud_model: groq/llama-3.3-70b-versatile
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.40
+    top_k: 50
+    top_p: 0.92
+    repeat_penalty: 1.05
+    num_ctx: 8192
+    best_for:
+      - policy_writer
+
+  # ── Strict Critic ──────────────────────────────────────────
+  # For: Critic / Fact-checker
+  # Goal: Conservative, literal, low hallucination risk.
+  #       Must catch errors in the policy writer's output —
+  #       so it needs to be at least as capable as the writer.
+  #       Very low temperature: only correct what's wrong.
+  strict_critic:
+    description: "Fact-checking — conservative, literal, minimal creative drift"
+    ollama_model: deepseek-r1:8b
+    ollama_fallback: llama3:8b
+    cloud_model: groq/llama-3.3-70b-versatile
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.05
+    top_k: 10
+    top_p: 0.75
+    repeat_penalty: 1.20
+    num_ctx: 8192
+    best_for:
+      - critic
+
+  # ── Fast Lookup ────────────────────────────────────────────
+  # For: Data Analyst (simple queries), Quick Answer mode
+  # Goal: Low latency for interactive queries.
+  #       Small model is fine — the task is well-defined SQL + summary.
+  fast_lookup:
+    description: "Low latency factual queries — small model, fast response"
+    ollama_model: llama3.2:3b
+    ollama_fallback: llama3:8b
+    cloud_model: groq/llama-3.1-8b-instant
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.10
+    top_k: 20
+    top_p: 0.85
+    repeat_penalty: 1.10
+    num_ctx: 2048
+    best_for:
+      - data_analyst
+      - chart_maker
+      - quick_answer
+
+  # ── Balanced General ───────────────────────────────────────
+  # For: Any agent not explicitly profiled, or original analysis crew
+  # Goal: Safe default — matches original behavior before profiles.
+  balanced_general:
+    description: "Safe default — matches original crew behavior"
+    ollama_model: llama3:8b
+    ollama_fallback: llama3.2:3b
+    cloud_model: groq/llama-3.3-70b-versatile
+    gemini_model: gemini/gemini-2.0-flash
+    temperature: 0.10
+    top_k: 40
+    top_p: 0.90
+    repeat_penalty: 1.05
+    num_ctx: 4096
+    best_for:
+      - general
+      - default

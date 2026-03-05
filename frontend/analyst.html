@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fair Districts GA — AI District Analyst</title>
+<link rel="icon" type="image/png" href="/img/FairDistrictsGA_icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/css/sidebar.css">
+<style>
+:root {
+  --black:#0d0d0d; --red:#c90000; --bg:#f4f2ee; --panel:#fff;
+  --border:#e2ddd7; --text:#1a1a1a; --muted:#777;
+  --font:'DM Sans',system-ui,sans-serif; --mono:'DM Mono',monospace;
+  --radius:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
+#page-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;min-width:0;height:100vh;}
+
+/* ── Topbar ── */
+.topbar{background:var(--black);display:flex;align-items:center;gap:14px;padding:0 16px;
+  border-bottom:1px solid #1a1a1a;height:56px;flex-shrink:0;}
+.topbar-title{color:#fff;font-size:0.9rem;font-weight:600;flex:1;}
+.topbar-pill{background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:2px 9px;
+  font-size:0.68rem;color:#aaa;}
+
+/* ── Main layout ── */
+.analyst-body{flex:1;overflow-y:auto;padding:28px 32px;display:flex;flex-direction:column;gap:20px;max-width:860px;width:100%;margin:0 auto;}
+
+/* ── Search card ── */
+.search-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;}
+.search-card h2{font-size:1rem;font-weight:700;margin-bottom:4px;color:var(--black);}
+.search-card p{font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.search-group{display:flex;flex-direction:column;gap:5px;}
+.search-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);}
+.search-select,.search-input{
+  border:1px solid var(--border);border-radius:6px;padding:8px 12px;
+  font-size:0.82rem;font-family:var(--font);background:var(--panel);color:var(--text);
+  outline:none;transition:border-color 0.12s;
+}
+.search-select:focus,.search-input:focus{border-color:#999;}
+.search-input{width:130px;}
+.run-btn{
+  background:var(--red);color:#fff;border:none;border-radius:6px;
+  padding:9px 20px;font-size:0.85rem;font-weight:600;font-family:var(--font);
+  cursor:pointer;transition:background 0.15s;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;align-self:flex-end;
+}
+.run-btn:hover:not(:disabled){background:#a50000;}
+.run-btn:disabled{background:#ccc;cursor:default;}
+
+/* ── Status ── */
+.status-row{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted);}
+.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--red);
+  border-radius:50%;animation:spin 0.6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cache-badge{font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:10px;}
+.cache-badge.live{background:#dcfce7;color:#166534;}
+.cache-badge.cached{background:#dbeafe;color:#1d4ed8;}
+
+/* ── Result card ── */
+.result-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;display:none;}
+.result-card.visible{display:block;}
+
+.district-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding-bottom:14px;border-bottom:1px solid var(--border);}
+.district-title{font-size:1.15rem;font-weight:700;color:var(--black);}
+.district-meta{font-size:0.72rem;color:var(--muted);}
+
+.flag-badge{font-size:0.72rem;font-weight:800;padding:4px 10px;border-radius:5px;
+  text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
+.flag-HIGH{background:#fee2e2;color:#991b1b;}
+.flag-MODERATE{background:#fef3c7;color:#92400e;}
+.flag-LOW{background:#dcfce7;color:#166534;}
+.flag-NEUTRAL{background:#f3f4f6;color:#555;}
+
+.narrative-body{font-size:0.86rem;line-height:1.7;color:#222;white-space:pre-wrap;word-break:break-word;}
+
+.findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+.finding-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;}
+.finding-title{font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;
+  color:var(--muted);margin-bottom:8px;}
+.finding-body{font-size:0.78rem;color:#333;line-height:1.55;}
+.finding-body ul{list-style:none;padding:0;}
+.finding-body ul li{padding:3px 0;border-bottom:1px solid var(--border);display:flex;gap:6px;}
+.finding-body ul li:last-child{border:none;}
+.finding-body ul li::before{content:"•";color:var(--red);font-weight:700;flex-shrink:0;}
+
+.regen-btn{margin-top:14px;background:none;border:1px solid var(--border);border-radius:5px;
+  padding:6px 14px;font-size:0.75rem;font-weight:600;font-family:var(--font);
+  color:var(--muted);cursor:pointer;transition:border-color 0.12s,color 0.12s;}
+.regen-btn:hover{border-color:#999;color:var(--text);}
+
+/* ── Loading skeleton ── */
+.skeleton-block{background:linear-gradient(90deg,#e8e8e8 25%,#f5f5f5 50%,#e8e8e8 75%);
+  background-size:200% 100%;animation:skeleton-sweep 1.4s infinite;border-radius:5px;}
+@keyframes skeleton-sweep{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-line{height:13px;margin-bottom:9px;}
+.skeleton-line.w-90{width:90%}
+.skeleton-line.w-75{width:75%}
+.skeleton-line.w-85{width:85%}
+.skeleton-line.w-60{width:60%}
+.skeleton-waiting{display:flex;align-items:center;gap:10px;padding:16px 0;color:var(--muted);font-size:0.8rem;}
+
+/* ── Recent analyses ── */
+.recent-section{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 20px;}
+.recent-title{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;
+  color:var(--muted);margin-bottom:10px;}
+.recent-chips{display:flex;flex-wrap:wrap;gap:7px;}
+.recent-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;
+  border:1px solid var(--border);font-size:0.72rem;font-weight:500;cursor:pointer;
+  background:var(--bg);transition:border-color 0.12s,background 0.12s;}
+.recent-chip:hover{border-color:#bbb;background:#edeae5;}
+.chip-flag{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chip-flag.HIGH{background:#ef4444;}
+.chip-flag.MODERATE{background:#f59e0b;}
+.chip-flag.LOW{background:#22c55e;}
+.chip-flag.NEUTRAL{background:#9ca3af;}
+.recent-empty{font-size:0.78rem;color:var(--muted);}
+
+/* ── Error ── */
+.error-msg{padding:12px;background:#fff5f5;border:1px solid #fecaca;border-radius:6px;
+  font-size:0.8rem;color:#991b1b;margin-top:8px;}
+
+@media(max-width:640px){
+  .analyst-body{padding:16px;}
+  .findings-grid{grid-template-columns:1fr;}
+  .search-row{flex-direction:column;}
+  .search-input{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div id="shell">
+<div id="page-wrap">
+
+<div class="topbar">
+  <span class="topbar-title">Fair Districts GA &#8212; AI District Analyst</span>
+  <span class="topbar-pill" id="status-pill">Ready</span>
+</div>
+
+<div class="analyst-body">
+
+  <!-- Search -->
+  <div class="search-card">
+    <h2>District Narrative Generator</h2>
+    <p>Select a chamber and district number to generate an AI-powered analysis of demographics, electoral history, compactness, and legal implications. Results are cached — the same district won't be regenerated unless the underlying data changes.</p>
+    <div class="search-row">
+      <div class="search-group">
+        <label class="search-label" for="chamber-sel">Chamber</label>
+        <select id="chamber-sel" class="search-select">
+          <option value="senate">State Senate</option>
+          <option value="house">State House</option>
+          <option value="congress">US Congress</option>
+        </select>
+      </div>
+      <div class="search-group">
+        <label class="search-label" for="district-input">District #</label>
+        <input type="number" id="district-input" class="search-input" placeholder="e.g. 30" min="1" max="180">
+      </div>
+      <button class="run-btn" id="run-btn" onclick="runAnalysis()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        Generate Analysis
+      </button>
+    </div>
+    <div id="run-status" class="status-row" style="margin-top:12px;display:none"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="result-card">
+    <div id="result-inner"></div>
+  </div>
+
+  <!-- Recent analyses -->
+  <div class="recent-section" id="recent-section">
+    <div class="recent-title">Recent Analyses</div>
+    <div class="recent-chips" id="recent-chips">
+      <span class="recent-empty">No analyses yet — generate your first one above.</span>
+    </div>
+  </div>
+
+</div><!-- /.analyst-body -->
+</div><!-- /#page-wrap -->
+</div><!-- /#shell -->
+
+<script src="/js/sidebar.js"></script>
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let currentChamber = 'senate', currentDistrict = null, isLoading = false;
+
+// ── Init ───────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  loadRecent();
+  // Allow Enter key in district input to trigger run
+  document.getElementById('district-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runAnalysis();
+  });
+});
+
+// ── Generate analysis ──────────────────────────────────────────────────────
+async function runAnalysis(force = false) {
+  if (isLoading) return;
+  const chamber  = document.getElementById('chamber-sel').value;
+  const distNum  = parseInt(document.getElementById('district-input').value);
+  if (!distNum || distNum < 1) {
+    showStatus('Enter a district number.', false);
+    return;
+  }
+
+  currentChamber  = chamber;
+  currentDistrict = distNum;
+  setLoading(true);
+
+  const chamberLabel = { senate: 'Senate', house: 'House', congress: 'Congress' }[chamber];
+  showStatus('Generating analysis — this may take 30–120 seconds for a fresh analysis…', true);
+  showSkeleton(chamberLabel, distNum);
+
+  try {
+    const url = `/api/districts/${chamber}/${distNum}/narrative` + (force ? '?force=true' : '');
+    const resp = await fetch(url);
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    renderResult(data, chamberLabel);
+    loadRecent();
+  } catch(e) {
+    showResult(`<div class="error-msg">Error: ${escHtml(e.message)}</div>`);
+    showStatus('Analysis failed. ' + e.message, false);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── Render result ──────────────────────────────────────────────────────────
+function renderResult(data, chamberLabel) {
+  if (!data.narrative) {
+    showResult(`<div class="error-msg">${escHtml(data.error || 'No narrative returned.')}</div>`);
+    showStatus(data.error || 'No narrative.', false);
+    return;
+  }
+
+  const flag       = (data.red_flag_level || 'NEUTRAL').toUpperCase();
+  const flagEmoji  = { HIGH:'🔴', MODERATE:'🟡', LOW:'🟢', NEUTRAL:'⚪' }[flag] || '⚪';
+  const cached     = data.cached;
+  const cachedAt   = data.cached_at ? new Date(data.cached_at).toLocaleDateString() : '';
+  const source     = data.source || '';
+
+  const advocatePoints = (data.advocate_points || []).map(p => `<li>${escHtml(p)}</li>`).join('');
+  const fairNote       = data.fair_map_note || '';
+
+  const html = `
+    <div class="district-header">
+      <div>
+        <div class="district-title">${escHtml(chamberLabel)} District ${data.district}</div>
+        <div class="district-meta">${source}${cached ? ' · cached ' + cachedAt : ' · live generation'}</div>
+      </div>
+      <span class="flag-badge flag-${flag}">${flagEmoji} ${flag}</span>
+      <span class="cache-badge ${cached ? 'cached' : 'live'}">${cached ? 'From cache' : 'Live'}</span>
+    </div>
+
+    <div class="narrative-body">${escHtml(data.narrative)}</div>
+
+    <div class="findings-grid">
+      ${advocatePoints ? `
+      <div class="finding-box">
+        <div class="finding-title">Advocate Points</div>
+        <div class="finding-body"><ul>${advocatePoints}</ul></div>
+      </div>` : ''}
+      ${fairNote ? `
+      <div class="finding-box">
+        <div class="finding-title">Fair Map Note</div>
+        <div class="finding-body">${escHtml(fairNote)}</div>
+      </div>` : ''}
+      ${data.red_flag_reason ? `
+      <div class="finding-box">
+        <div class="finding-title">Red Flag Rationale</div>
+        <div class="finding-body">${escHtml(data.red_flag_reason)}</div>
+      </div>` : ''}
+    </div>
+
+    <button class="regen-btn" onclick="runAnalysis(true)">&#8635; Regenerate (bypass cache)</button>
+  `;
+
+  showResult(html);
+  showStatus(
+    `${cached ? '&#9679; Loaded from cache' : '&#9679; Fresh generation complete'} — ${chamberLabel} District ${data.district}`,
+    false
+  );
+}
+
+// ── Skeleton ───────────────────────────────────────────────────────────────
+function showSkeleton(chamberLabel, distNum) {
+  const html = `
+    <div class="district-header">
+      <div>
+        <div class="district-title">${escHtml(chamberLabel)} District ${distNum}</div>
+        <div class="district-meta">Generating&#8230;</div>
+      </div>
+    </div>
+    <div class="skeleton-waiting">
+      <div class="spinner"></div>
+      Running 6-agent analysis pipeline — demographic, electoral, geographic, socioeconomic, legal, and editorial review…
+    </div>
+    <div class="skeleton-block skeleton-line w-90"></div>
+    <div class="skeleton-block skeleton-line w-75"></div>
+    <div class="skeleton-block skeleton-line w-85"></div>
+    <div class="skeleton-block skeleton-line w-60"></div>
+    <div class="skeleton-block skeleton-line w-90"></div>
+    <div class="skeleton-block skeleton-line w-75"></div>
+  `;
+  showResult(html);
+}
+
+// ── Recent ─────────────────────────────────────────────────────────────────
+async function loadRecent() {
+  try {
+    const data = await fetch('/api/narratives/recent?limit=12').then(r => r.json());
+    const el   = document.getElementById('recent-chips');
+    if (!data.length) {
+      el.innerHTML = '<span class="recent-empty">No analyses yet — generate your first one above.</span>';
+      return;
+    }
+    el.innerHTML = data.map(r => {
+      const flag     = (r.red_flag_level || 'NEUTRAL').toUpperCase();
+      const chamber  = r.chamber;
+      const chamberLabel = { senate:'Senate', house:'House', congress:'Congress' }[chamber] || chamber;
+      return `<span class="recent-chip" onclick="loadFromCache('${escHtml(chamber)}', ${r.district})">
+        <span class="chip-flag ${flag}"></span>
+        ${chamberLabel} ${r.district}
+      </span>`;
+    }).join('');
+  } catch(e) { /* ignore */ }
+}
+
+async function loadFromCache(chamber, district) {
+  document.getElementById('chamber-sel').value = chamber;
+  document.getElementById('district-input').value = district;
+  runAnalysis(false);
+}
+
+// ── UI helpers ──────────────────────────────────────────────────────────────
+function setLoading(on) {
+  isLoading = on;
+  document.getElementById('run-btn').disabled = on;
+  document.getElementById('status-pill').textContent = on ? 'Analyzing…' : 'Ready';
+}
+
+function showStatus(msg, loading) {
+  const el = document.getElementById('run-status');
+  el.style.display = 'flex';
+  el.innerHTML = (loading ? '<div class="spinner"></div>' : '') + `<span>${msg}</span>`;
+}
+
+function showResult(html) {
+  const card = document.getElementById('result-card');
+  card.classList.add('visible');
+  document.getElementById('result-inner').innerHTML = html;
+}
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+
+</body>
+</html>
