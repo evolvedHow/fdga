@@ -123,7 +123,7 @@ app.add_middleware(
 @app.get("/")
 async def serve_frontend():
     token = os.getenv("MAPBOX_TOKEN", "")
-    html  = (BASE_DIR / "index.html").read_text()
+    html  = (BASE_DIR / "frontend/ui_elections.html").read_text()
     html  = html.replace("</head>", f'\n  <script>window.MAPBOX_TOKEN = "{token}";</script>\n</head>')
     return HTMLResponse(content=html)
 

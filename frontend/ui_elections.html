@@ -94,6 +94,21 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
 .mwrap{flex:1 1 0;min-width:0;position:relative;overflow:hidden}
 .mwrap .mbx{position:absolute;top:0;left:0;right:0;bottom:0}
 
+/* ═══ RIGHT PANEL SCORECARD ═════════════════════════════════════════ */
+.rp-scorecard{background:var(--ink);flex-shrink:0;border-bottom:2px solid rgba(255,255,255,.08)}
+.rp-sc-hd{padding:8px 12px 4px;display:flex;align-items:center}
+.rp-sc-title{font-family:var(--mono);font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.35)}
+.rp-sc-grades{display:flex;gap:5px;padding:4px 12px 8px}
+.rp-sc-grade{flex:1;background:rgba(255,255,255,.07);border-radius:5px;padding:5px 4px;text-align:center}
+.rp-sc-gv{font-family:var(--hd);font-size:1.15rem;line-height:1;font-style:italic}
+.rp-sc-gv.f{color:#ef4444}.rp-sc-gv.c{color:#f59e0b}.rp-sc-gv.b,.rp-sc-gv.a{color:#4ade80}
+.rp-sc-gl{font-size:.52rem;color:rgba(255,255,255,.28);margin-top:2px;white-space:nowrap}
+.rp-sc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06)}
+.rp-sc-stat{display:flex;flex-direction:column;align-items:center;padding:6px 4px;background:var(--ink)}
+.rp-sc-sv{font-family:var(--mono);font-size:.92rem;font-weight:700;color:#fff;line-height:1}
+.rp-sc-sv.warn{color:#f59e0b}.rp-sc-sv.ok{color:#4ade80}
+.rp-sc-sl{font-size:.52rem;color:rgba(255,255,255,.28);margin-top:2px;text-align:center;white-space:nowrap}
+
 /* Right info panel */
 .rpanel{
   width:var(--panel);flex:0 0 var(--panel);
@@ -235,8 +250,8 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
 .cmp-mw .mbx{position:absolute;top:0;left:0;right:0;bottom:0}
 /* Detail panel below maps */
 .cmp-det{
-  flex:0 0 220px;height:220px;
-  background:var(--sfc);border-top:1px solid var(--border);
+  flex:0 0 280px;height:280px;
+  background:var(--sfc);border-top:2px solid var(--border);
   overflow-y:auto
 }
 .cmp-det::-webkit-scrollbar{width:4px}
@@ -395,23 +410,6 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
   <!-- ══ TAB 1: ELECTION RESULTS MAP ══════════════════════════════════ -->
   <div class="tab active" id="tab-elections">
     <div class="sb">
-      <!-- Mini stats strip -->
-      <div class="sb-sect" id="el-summary-strip" style="background:var(--ink);padding:14px 15px 12px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="el-summary-nums">
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:#fff" id="es-elections">—</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:1px">Elections</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:#fff" id="es-flags">—</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:1px">Red Flags</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:#fff" id="es-senate">—</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:1px">Senate Dist.</div></div>
-          <div style="text-align:center"><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:#fff" id="es-mm">—</div><div style="font-size:.6rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:1px">Maj-Minority</div></div>
-        </div>
-        <div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.1)">
-          <div style="display:flex;justify-content:space-between;font-size:.65rem;color:rgba(255,255,255,.3);margin-bottom:4px"><span>Princeton Gerrymandering</span></div>
-          <div style="display:flex;gap:6px">
-            <div style="flex:1;background:rgba(255,255,255,.07);border-radius:5px;padding:5px 0;text-align:center"><div style="font-family:var(--hd);font-size:1.1rem;color:#ef4444;line-height:1">F</div><div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:1px">Racial</div></div>
-            <div style="flex:1;background:rgba(255,255,255,.07);border-radius:5px;padding:5px 0;text-align:center"><div style="font-family:var(--hd);font-size:1.1rem;color:#f59e0b;line-height:1">C</div><div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:1px">Partisan</div></div>
-            <div style="flex:1;background:rgba(255,255,255,.07);border-radius:5px;padding:5px 0;text-align:center"><div style="font-family:var(--hd);font-size:1.1rem;color:#f59e0b;line-height:1">C</div><div style="font-size:.55rem;color:rgba(255,255,255,.3);margin-top:1px">Competitive</div></div>
-          </div>
-        </div>
-      </div>
       <div class="sb-sect">
         <div class="sb-lbl">Map Layer</div>
         <div class="ch-row">
@@ -433,9 +431,59 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
           <div class="meas-row"   id="cb-pct_bp_"  onclick="elColor('pct_bp_')"><span class="mdot" style="background:#15803d"></span>Minority VAP %</div>
         </div>
       </div>
-      <div class="sb-sect" id="el-sw-wrap" style="display:none">
-        <div class="sb-lbl">Statewide Result</div>
-        <div id="el-sw"></div>
+      <div class="sb-sect">
+        <div class="sb-lbl">District Map</div>
+        <select id="el-district-map" onchange="elDistrictMap(this.value)" style="width:100%;font-size:.8rem;padding:7px 8px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--sfc);color:var(--ink);cursor:pointer;font-family:var(--font)">
+          <option value="">— Boundaries off —</option>
+          <optgroup label="Senate">
+            <option value="senate_r1">Senate 2024 Enacted</option>
+            <option value="senate_p3">Senate 2021 Enacted</option>
+            <option value="senate_r2">Senate Remedy 2</option>
+            <option value="senate_p1">Senate Proposed (Dem)</option>
+            <option value="senate_p2">Senate Proposed (Rep)</option>
+          </optgroup>
+          <optgroup label="House">
+            <option value="house_r1">House 2024 Enacted</option>
+            <option value="house_p3">House 2021 Enacted</option>
+            <option value="house_r2">House Remedy 2</option>
+            <option value="house_p1">House Proposed (Dem)</option>
+            <option value="house_p2">House Proposed (Rep)</option>
+          </optgroup>
+          <optgroup label="Congress">
+            <option value="congress_r1">Congress 2024 Enacted</option>
+            <option value="congress_proposed_3">Congress 2023 Enacted</option>
+            <option value="congress_proposed">Congress 2021 Enacted</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="sb-sect" id="el-demog-sect" style="display:none">
+        <div class="sb-lbl">District Demographic Overlay</div>
+        <select id="el-demog-measure" onchange="elDemogOverlay(this.value)" style="width:100%;font-size:.8rem;padding:7px 8px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--sfc);color:var(--ink);cursor:pointer;font-family:var(--font)">
+          <option value="">— None —</option>
+          <option value="pct_bvp">Black VAP %</option>
+          <option value="pct_hvp">Hispanic VAP %</option>
+          <option value="pct_avp">Asian VAP %</option>
+          <option value="pct_bp_">Minority VAP %</option>
+          <option value="partisan">Partisan Lean</option>
+        </select>
+      </div>
+      <div class="sb-sect">
+        <div class="sb-lbl">Boundary Overlays</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--ink2);cursor:pointer">
+            <input type="checkbox" id="tog-county" onchange="togOverlay('county',this.checked)" style="accent-color:var(--red);width:14px;height:14px"> County borders
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--ink2);cursor:pointer">
+            <input type="checkbox" id="tog-city" onchange="togOverlay('city',this.checked)" style="accent-color:var(--red);width:14px;height:14px"> Cities &amp; places
+          </label>
+        </div>
+      </div>
+      <div class="sb-sect" id="el-locate-sect" style="display:none">
+        <div class="sb-lbl">Go to District #</div>
+        <div style="display:flex;gap:6px">
+          <input type="number" id="el-locate-num" placeholder="e.g. 42" min="1" max="250" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:.82rem;font-family:var(--mono);color:var(--ink)">
+          <button onclick="elLocate()" style="padding:6px 10px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:.8rem;font-family:var(--font)">Go</button>
+        </div>
       </div>
     </div>
     <!-- Map -->
@@ -455,13 +503,42 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
       </div>
       <div class="mtt" id="tt-el"></div>
     </div>
-    <!-- Right panel — open by default -->
+    <!-- Right panel — scorecard always visible at top, county detail below -->
     <div class="rpanel" id="rp-el">
       <div class="rpanel-inner" style="position:relative">
-        <button class="ip-close" onclick="closePanel('rp-el')" title="Close panel">✕</button>
+
+        <!-- ── Scorecard (always visible) ── -->
+        <div class="rp-scorecard">
+          <!-- Princeton grades row -->
+          <div class="rp-sc-hd">
+            <span class="rp-sc-title">Princeton Gerrymandering Project</span>
+          </div>
+          <div class="rp-sc-grades">
+            <div class="rp-sc-grade"><div class="rp-sc-gv f">F</div><div class="rp-sc-gl">Racial Rep.</div></div>
+            <div class="rp-sc-grade"><div class="rp-sc-gv c">C</div><div class="rp-sc-gl">Partisan Fair.</div></div>
+            <div class="rp-sc-grade"><div class="rp-sc-gv c">C</div><div class="rp-sc-gl">Competitive</div></div>
+          </div>
+          <!-- Stats row -->
+          <div class="rp-sc-stats">
+            <div class="rp-sc-stat"><span class="rp-sc-sv" id="es-elections">—</span><span class="rp-sc-sl">Elections</span></div>
+            <div class="rp-sc-stat"><span class="rp-sc-sv" id="es-senate">—</span><span class="rp-sc-sl">Senate Dist.</span></div>
+            <div class="rp-sc-stat"><span class="rp-sc-sv warn" id="es-flags">—</span><span class="rp-sc-sl">Red Flags</span></div>
+            <div class="rp-sc-stat"><span class="rp-sc-sv ok" id="es-mm">—</span><span class="rp-sc-sl">Maj-Min.</span></div>
+          </div>
+          <!-- Statewide result (shown when election selected) -->
+          <div id="el-sw-wrap" style="display:none;padding:7px 12px;border-top:1px solid var(--border)">
+            <div id="el-sw"></div>
+          </div>
+        </div>
+
+        <!-- ── County / District detail (shown on click) ── -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px 6px;border-bottom:1px solid var(--border);background:var(--bg2)">
+          <span style="font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3)">District Detail</span>
+          <button onclick="closePanel('rp-el')" title="Collapse panel" style="border:none;background:none;cursor:pointer;color:var(--ink3);font-size:.85rem;padding:2px 4px;border-radius:3px;line-height:1" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--ink3)'">✕</button>
+        </div>
         <div class="rph" id="rph-el">
           <div class="rph-ico">🗺</div>
-          <div class="rph-txt">Click or hover any county or district on the map to see its election history and demographic breakdown</div>
+          <div class="rph-txt">Click any county or district on the map to see its election history and demographics</div>
         </div>
         <div id="rpc-el" style="display:none"></div>
       </div>
@@ -513,50 +590,38 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
   <!-- ══ TAB 4: MAP COMPARISON ═══════════════════════════════════════════ -->
   <div class="tab" id="tab-compare">
     <div class="cmp-bar">
-      <div class="cg"><div class="cl">Map A</div>
-        <select class="csel" id="cmp-a" onchange="cmpUpd()">
-          <option value="senate">Senate 2024 Enacted</option>
-          <option value="senate">Senate 2021 Enacted</option>
-          <option value="house">House 2024 Enacted</option>
-          <option value="house">House 2021 Enacted</option>
-          <option value="congress">Congress 2024</option>
-          <option value="congress">Congress 2021</option>
-        </select>
+      <div class="cg">
+        <div class="cl">Election A</div>
+        <select class="csel" id="cmp-ela" onchange="cmpElUpd()"><option value="">— loading —</option></select>
       </div>
       <div class="vs">vs</div>
-      <div class="cg"><div class="cl">Map B</div>
-        <select class="csel" id="cmp-b" onchange="cmpUpd()">
-          <option value="senate">Senate 2021 Enacted</option>
-          <option value="senate">Senate 2024 Enacted</option>
-          <option value="house">House 2021 Enacted</option>
-          <option value="house">House 2024 Enacted</option>
-          <option value="congress">Congress 2021</option>
-          <option value="congress">Congress 2024</option>
-        </select>
+      <div class="cg">
+        <div class="cl">Election B</div>
+        <select class="csel" id="cmp-elb" onchange="cmpElUpd()"><option value="">— loading —</option></select>
       </div>
-      <div class="cg"><div class="cl">Measure</div>
-        <select class="csel" id="cmp-m" onchange="cmpUpd()">
-          <option value="pct_bvp">Black VAP %</option>
-          <option value="pct_hvp">Hispanic VAP %</option>
-          <option value="pct_bp_">Minority VAP %</option>
-          <option value="partisan">Partisan Lean % Dem</option>
-        </select>
-      </div>
-      <span style="font-size:.76rem;color:var(--ink3);margin-left:auto;white-space:nowrap">Hover to highlight ·&nbsp;Click a county to compare below</span>
-      <button class="exp-btn" onclick="expCSV()">↓ Export</button>
+      <span style="font-size:.75rem;color:var(--ink3);margin-left:auto;white-space:nowrap">
+        👆 Click any county on either map to compare elections, demographics &amp; socioeconomics below
+      </span>
+      <button class="exp-btn" onclick="expCSV()">↓ CSV</button>
     </div>
     <div class="cmp-maps">
       <div class="cmp-side">
-        <div class="cmp-lbl" id="cmp-la">Map A: Senate 2024 Enacted</div>
+        <div class="cmp-lbl" id="cmp-la">Election A</div>
         <div class="cmp-mw"><div class="mbx" id="map-ca"></div><div class="mtt" id="tt-ca"></div></div>
       </div>
       <div class="cmp-side">
-        <div class="cmp-lbl" id="cmp-lb">Map B: Senate 2021 Enacted</div>
+        <div class="cmp-lbl" id="cmp-lb">Election B</div>
         <div class="cmp-mw"><div class="mbx" id="map-cb"></div><div class="mtt" id="tt-cb"></div></div>
       </div>
     </div>
     <div class="cmp-det" id="cmp-det">
-      <div class="cmp-ph">Click any county on either map to see the side-by-side comparison here</div>
+      <div class="cmp-ph">
+        <div style="text-align:center;color:var(--ink3)">
+          <div style="font-size:1.6rem;margin-bottom:8px;opacity:.25">📊</div>
+          <div style="font-size:.88rem;font-weight:600;margin-bottom:4px;color:var(--ink2)">Select two elections above, then click any county</div>
+          <div style="font-size:.79rem">Results, swing analysis, demographics &amp; socioeconomics will appear here</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -570,18 +635,19 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
           <button class="alt-btn"   id="alt-s" onclick="aiLeftTab('s')">Saved</button>
         </div>
         <div class="ai-left-panel on" id="alp-q">
-          <div class="aiq" onclick="aiAsk(this.textContent)">Which districts show the strongest racial gerrymandering signals?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">How did the 2024 map changes affect Black voting power in the Senate?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Which county swung the most between 2020 and 2024?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">How many majority-minority districts were created or destroyed in 2024?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Which Senate districts have 35%+ BVAP but vote Republican?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">What does Georgia's F grade in racial representation mean?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Are there districts that may violate Section 2 of the Voting Rights Act?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Compare partisan fairness of the 2021 vs 2024 Senate maps</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Which districts are most competitive (45–55% lean)?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Where is minority vote dilution most likely occurring?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">What reforms would make Georgia's maps fairer?</div>
-          <div class="aiq" onclick="aiAsk(this.textContent)">Summarize the most important gerrymandering findings in Georgia</div>
+          <div style="padding:9px 14px 5px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.25)">Quick Questions (click to run)</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">How many Senate districts have Black VAP over 50%?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Which Senate districts in the 2024 enacted map lean Democrat?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">How many House districts are majority-minority in 2024?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">List Senate districts with Black VAP between 35% and 50%</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Which districts have Strong Republican lean in the 2024 Senate map?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Top 10 Senate districts by Black VAP percentage</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">How many House districts have minority VAP above 40%?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">How many Congressional districts are in the 2024 enacted map?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Which Senate districts have Hispanic VAP above 10%?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Compare total population between Senate 2021 and 2024 enacted maps</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">What is the average total population per Senate district in 2024?</div>
+          <div class="aiq" onclick="aiAsk(this.textContent)">Which districts have both high Black VAP and Lean Republican partisan lean?</div>
         </div>
         <div class="ai-left-panel" id="alp-s">
           <div id="ai-saved-list"><div class="empty" style="color:rgba(255,255,255,.3)">No saved analyses yet.<br>Generate one from the Analysis tab.</div></div>
@@ -598,7 +664,11 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
         <div class="ai-panel on" id="aip-chat">
           <div class="ai-msgs" id="ai-msgs">
             <div class="ai-msg b">
-              <div class="ai-bub">Hello! I'm your redistricting analysis assistant for Fair Districts GA. I have access to Georgia election data, district demographics, and map comparisons.<br><br>Use the suggested questions on the left, or ask me anything about Georgia's redistricting process.</div>
+              <div class="ai-bub">Hello! I'm the <strong>Fair Districts GA data assistant</strong>. I convert your natural-language questions directly into <strong>SQL queries</strong> against the redistricting database and return live results.<br><br>
+              Best for: <em>counts, filters, comparisons, rankings</em><br>
+              Example: <em>"How many Senate districts lean Democrat in 2024?"</em><br><br>
+              <strong>Note:</strong> Partisan lean is stored as text — use phrases like <em>"lean Democrat"</em> or <em>"strong Republican"</em> rather than numbers.<br><br>
+              For narrative analysis and policy interpretation, use the <strong>Generate Analysis</strong> tab.</div>
               <div class="ai-meta">Fair Districts GA AI</div>
             </div>
           </div>
@@ -689,10 +759,13 @@ body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.6}
 const G={
   E:[],S:[],SW:[],SWP:[],
   D:{senate:[],house:[],congress:[]},
+  ACS:[],
   geo:null,
   maps:{},mRdy:{},
   curEl:null,curElLayer:'county',curElColor:'margin',
   curRfCh:'senate',
+  rfFilter:null,
+  cmpElA:null,cmpElB:null,
   savedAnalyses:[]
 };
 
@@ -705,14 +778,22 @@ function sw(id,btn){
   document.getElementById('tab-'+id)?.classList.add('active');
   requestAnimationFrame(()=>setTimeout(()=>{
     if(id==='elections'&&G.maps.el){G.maps.el.resize();if(G.mRdy.el&&G.curEl)paintEl()}
-    if(id==='redflags'){if(!G.mRdy.rf)initRfMap();else{G.maps.rf?.resize();rfSidebar();paintRf()}}
+    if(id==='redflags'){if(!G.mRdy.rf)initRfMap();else{G.maps.rf?.resize();loadRfDistGeo(G.curRfCh).then(()=>{updateRfDistSource();rfSidebar();paintRf();})}}
     if(id==='compare'){if(!G.mRdy.ca)initCmpMaps();else{G.maps.ca?.resize();G.maps.cb?.resize();cmpUpd()}}
     if(id==='data')buildData();
   },80));
 }
 
 function closePanel(id){
-  document.getElementById(id)?.classList.add('closed');
+  if(id==='rp-el'){
+    // For elections panel: hide the county detail but keep the scorecard
+    const ph=document.getElementById('rph-el');
+    const det=document.getElementById('rpc-el');
+    if(ph){ph.style.display='none'}
+    if(det){det.style.display='none'}
+  } else {
+    document.getElementById(id)?.classList.add('closed');
+  }
 }
 
 // ════ BOOT ════════════════════════════════════════════════════════════
@@ -741,6 +822,10 @@ async function init(){
     buildElList();
     initElMap();
     if(sm.length)selEl(sm[sm.length-1].election_id);
+    // Populate compare election dropdowns
+    buildCmpElDropdowns(sm);
+    // Load ACS socioeconomic data (graceful fail if not yet generated)
+    fetch('/api/counties/acs').then(r=>r.ok?r.json():[]).then(d=>{G.ACS=d||[];}).catch(()=>{});
   }catch(e){setSt('er','Data error');console.error('Init error:',e)}
 }
 
@@ -851,12 +936,126 @@ function renderSW(s){
 function elBy(l){
   G.curElLayer=l;
   ['county','senate','house','congress'].forEach(c=>document.getElementById('el-by-'+c)?.classList.toggle('on',c===l));
-  // When layer changes, re-paint and update what "click" shows
   if(G.mRdy.el)paintEl();
-  // Update right panel placeholder to match selected layer
   const labels={county:'county',senate:'Senate district',house:'House district',congress:'congressional district'};
   const ph=document.getElementById('rph-el');
   if(ph){const t=ph.querySelector('.rph-txt');if(t)t.textContent=`Click or hover any ${labels[l]||'area'} to see its election history and demographic breakdown`}
+}
+
+// ════ DISTRICT MAP / OVERLAY / BOUNDARY CONTROLS ══════════════════════════
+
+const DISTRICT_MAP_FILES = {
+  senate_r1:         'senate_enacted_24_2024update.geojson',
+  senate_p3:         'senate_enacted_2123_2024update.geojson',
+  senate_r2:         'senate_remedy_2.geojson',
+  senate_p1:         'senate_prop1_dem.geojson',
+  senate_p2:         'senate_prop2_rep.geojson',
+  house_r1:          'house_enacted_24_2024update.geojson',
+  house_p3:          'house_enacted_2123_2024update.geojson',
+  house_r2:          'house_remedy_2.geojson',
+  house_p1:          'house_prop1_dem.geojson',
+  house_p2:          'house_prop2_rep.geojson',
+  congress_r1:       'congress_enacted_24_2024update.geojson',
+  congress_proposed_3: 'congress_enacted_2123_2024update.geojson',
+  congress_proposed: 'congress21_census20.geojson',
+};
+
+const _geoCache={};
+G.curDistMapId='';
+G.curDemogMeasure='';
+
+async function elDistrictMap(mapId){
+  G.curDistMapId=mapId;
+  const m=G.maps.el;
+  if(!m||!G.mRdy.el)return;
+  const demogSect=document.getElementById('el-demog-sect');
+  const locateSect=document.getElementById('el-locate-sect');
+  if(!mapId){
+    ['district-fill','district-outline','district-hover'].forEach(id=>{try{m.setLayoutProperty(id,'visibility','none')}catch(e){}});
+    if(demogSect)demogSect.style.display='none';
+    if(locateSect)locateSect.style.display='none';
+    return;
+  }
+  const file=DISTRICT_MAP_FILES[mapId];
+  if(!file){console.warn('No file for',mapId);return;}
+  if(demogSect)demogSect.style.display='';
+  if(locateSect)locateSect.style.display='';
+  // Load GeoJSON if not cached
+  if(!_geoCache[mapId]){
+    try{
+      const r=await fetch('/data/'+file);
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      _geoCache[mapId]=await r.json();
+    }catch(e){console.error('District GeoJSON load failed:',file,e);return;}
+  }
+  const src=m.getSource('ga-districts');
+  if(src)src.setData(_geoCache[mapId]);
+  ['district-fill','district-outline'].forEach(id=>{try{m.setLayoutProperty(id,'visibility','visible')}catch(e){}});
+  if(G.curDemogMeasure)elDemogOverlay(G.curDemogMeasure);
+  else m.setPaintProperty('district-fill','fill-color','rgba(124,58,237,0.15)');
+}
+
+function elDemogOverlay(measure){
+  G.curDemogMeasure=measure;
+  const m=G.maps.el;
+  if(!m||!G.mRdy.el)return;
+  if(!measure){
+    try{m.setPaintProperty('district-fill','fill-color','rgba(124,58,237,0.15)');
+        m.setPaintProperty('district-fill','fill-opacity',0.5);}catch(e){}
+    return;
+  }
+  const scales={
+    pct_bvp:['interpolate',['linear'],['*',['coalesce',['get','pct_bvp'],0],100], 0,'#f5f3ff', 20,'#c4b5fd', 40,'#8b5cf6', 60,'#6d28d9', 80,'#4c1d95'],
+    pct_hvp:['interpolate',['linear'],['*',['coalesce',['get','pct_hvp'],0],100], 0,'#f0fdf4', 10,'#86efac', 25,'#22c55e', 40,'#15803d', 60,'#14532d'],
+    pct_avp:['interpolate',['linear'],['*',['coalesce',['get','pct_avp'],0],100], 0,'#fffbeb', 5,'#fde68a',  15,'#f59e0b', 30,'#b45309', 50,'#78350f'],
+    pct_bp_:['interpolate',['linear'],['*',['coalesce',['get','pct_bp_'],0],100], 0,'#f0f9ff', 20,'#7dd3fc', 40,'#0ea5e9', 60,'#0369a1', 80,'#0c4a6e'],
+    partisan:['interpolate',['linear'],['coalesce',['get','partisan'],0.5], 0,'#B71C1C', 0.40,'#FFCDD2', 0.50,'#E5E7EB', 0.55,'#DBEAFE', 1,'#1565C0'],
+  };
+  try{
+    m.setPaintProperty('district-fill','fill-color',scales[measure]||'rgba(124,58,237,0.5)');
+    m.setPaintProperty('district-fill','fill-opacity',0.75);
+    m.setLayoutProperty('district-fill','visibility','visible');
+  }catch(e){console.warn('Demog overlay error',e);}
+}
+
+async function togOverlay(type,on){
+  const m=G.maps.el;
+  if(!m||!G.mRdy.el)return;
+  const layerId = type==='county'?'fdga-county-bdr':'fdga-city-bdr';
+  const srcId   = type==='county'?'fdga-county-src':'fdga-city-src';
+  const dataUrl = type==='county'?'/data/county.geojson':'/data/places_2020data.geojson';
+  const color   = type==='county'?'#64748b':'#0891b2';
+  const width   = type==='county'?1.2:1.5;
+  if(!m.getSource(srcId)){
+    try{
+      m.addSource(srcId,{type:'geojson',data:dataUrl});
+      m.addLayer({id:layerId,type:'line',source:srcId,
+        layout:{visibility:on?'visible':'none'},
+        paint:{'line-color':color,'line-width':width,'line-opacity':0.8}});
+    }catch(e){console.warn('Overlay load failed:',dataUrl,e);}
+  } else {
+    try{m.setLayoutProperty(layerId,'visibility',on?'visible':'none');}catch(e){}
+  }
+}
+
+async function elLocate(){
+  const num=parseInt(document.getElementById('el-locate-num')?.value,10);
+  const m=G.maps.el;
+  if(!m||!G.mRdy.el||!G.curDistMapId||isNaN(num))return;
+  const gj=_geoCache[G.curDistMapId];
+  if(!gj){await elDistrictMap(G.curDistMapId);}
+  const gj2=_geoCache[G.curDistMapId];
+  if(!gj2)return;
+  const feat=gj2.features.find(f=>{
+    const d=f.properties?.DISTRICT||f.properties?.district;
+    return parseInt(d,10)===num;
+  });
+  if(!feat){alert('District '+num+' not found in this map.');return;}
+  const coords=feat.geometry.type==='MultiPolygon'
+    ?feat.geometry.coordinates.flatMap(p=>p.flatMap(r=>r))
+    :feat.geometry.coordinates.flatMap(r=>r);
+  const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
+  m.fitBounds([[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],{padding:60,duration:700});
 }
 
 function elColor(m){
@@ -934,46 +1133,120 @@ function demogBars(d){
 }
 
 // ════ RED FLAGS MAP ════════════════════════════════════════════════════
+
+// GeoJSON files for the enacted map of each chamber (used by RF tab)
+const RF_GEOJSON = {
+  senate:   'senate_enacted_24_2024update.geojson',
+  house:    'house_enacted_24_2024update.geojson',
+  congress: 'congress_enacted_24_2024update.geojson',
+};
+
+// Normalised district number from any district record
+function distNum(r){
+  return parseInt(r.district_num||r.district||r.DISTRICT||0,10);
+}
+
 function flags(ch){
   return(G.D[ch]||[]).flatMap(r=>{
-    const bvap=r.pct_bvp||0,dm=(r.partisan||50)-50;
+    const bvap=r.pct_bvp||0, dm=(r.partisan||50)-50;
     const fs=[];
     if(bvap>50&&dm>30)  fs.push({...r,flag:'pack',bvap,dm});
-    else if(bvap>=35&&bvap<50&&dm<-5)fs.push({...r,flag:'crack',bvap,dm});
+    else if(bvap>=35&&bvap<50&&dm<-5) fs.push({...r,flag:'crack',bvap,dm});
     if(Math.abs(dm)>25) fs.push({...r,flag:'partisan',bvap,dm});
     return fs;
   });
 }
 
-function rfCh(ch){
+// Load district GeoJSON for a given chamber into cache
+async function loadRfDistGeo(ch){
+  const key='rf_'+ch;
+  if(_geoCache[key]) return _geoCache[key];
+  const file=RF_GEOJSON[ch];
+  if(!file) return null;
+  try{
+    const r=await fetch('/data/'+file);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    _geoCache[key]=await r.json();
+  }catch(e){console.error('RF district GeoJSON load failed:',ch,e);return null;}
+  return _geoCache[key];
+}
+
+// Push current chamber's district GeoJSON into the rf-dist Mapbox source
+function updateRfDistSource(){
+  const m=G.maps.rf; if(!m||!G.mRdy.rf) return;
+  const gj=_geoCache['rf_'+G.curRfCh];
+  const src=m.getSource('rf-dist');
+  if(src) src.setData(gj||{type:'FeatureCollection',features:[]});
+}
+
+async function rfCh(ch){
   G.curRfCh=ch;
+  G.rfFilter=null;
   ['senate','house','congress'].forEach(c=>{
     const id=c==='senate'?'rf-sen':c==='house'?'rf-hse':'rf-cng';
     document.getElementById(id)?.classList.toggle('on',c===ch);
   });
   rfSidebar();
-  if(G.mRdy.rf)paintRf();
+  if(G.mRdy.rf){
+    await loadRfDistGeo(ch);
+    updateRfDistSource();
+    paintRf();
+  }
 }
 
 function initRfMap(){
-  const m=mkMap('map-rf');if(!m)return;
+  const m=mkMap('map-rf'); if(!m) return;
   G.maps.rf=m;
   m.on('load',async()=>{
     G.mRdy.rf=true;
-    await addCountyLayers(m,'rc');
+
+    // 1. Subtle county line overlay
+    const countyGeo=await loadGeo();
+    m.addSource('rf-county',{type:'geojson',data:countyGeo});
+    m.addLayer({id:'line-rf-county',type:'line',source:'rf-county',
+      paint:{'line-color':'#6B7280','line-width':.5,'line-opacity':.45}});
+
+    // 2. District fill, border and hover layers
+    m.addSource('rf-dist',{type:'geojson',data:{type:'FeatureCollection',features:[]},generateId:true});
+    m.addLayer({id:'fill-rf-dist',type:'fill',source:'rf-dist',
+      paint:{'fill-color':'#E5E7EB','fill-opacity':.88}});
+    m.addLayer({id:'line-rf-dist',type:'line',source:'rf-dist',
+      paint:{'line-color':'#374151','line-width':.8,'line-opacity':.7}});
+    m.addLayer({id:'hvr-rf-dist',type:'fill',source:'rf-dist',
+      paint:{'fill-color':'#111827','fill-opacity':.2},
+      filter:['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],-1]});
+
     const tt=document.getElementById('tt-rf');
-    m.on('mousemove','fill-rc',e=>{
-      const name=e.features[0]?.properties?.NAME;if(!name)return;
-      m.setFilter('hvr-rc',['==','NAME',name]);
-      const fs=flags(G.curRfCh).filter(f=>getName(f).toUpperCase()===name.toUpperCase());
-      let h=`<strong>${name} County</strong>`;
-      fs.forEach(f=>{h+=`<br><span style="color:${f.flag==='crack'?'#FCA5A5':f.flag==='pack'?'#c4b5fd':'#fcd34d'}">${f.flag==='crack'?'⚑ Cracking':f.flag==='pack'?'◈ Packing':'⊘ Partisan'}</span>`});
-      if(!fs.length)h+=`<br><span style="color:#9ca3af">No flags</span>`;
+
+    m.on('mousemove','fill-rf-dist',e=>{
+      const props=e.features[0]?.properties; if(!props) return;
+      const dn=parseInt(props.DISTRICT||props.district||0,10);
+      m.setFilter('hvr-rf-dist',['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],dn]);
+      const fs=flags(G.curRfCh).filter(f=>distNum(f)===dn);
+      let h=`<strong>${G.curRfCh.charAt(0).toUpperCase()+G.curRfCh.slice(1)} District ${dn}</strong>`;
+      if(fs.length) fs.forEach(f=>{h+=`<br><span style="color:${f.flag==='crack'?'#FCA5A5':f.flag==='pack'?'#c4b5fd':'#fcd34d'}">${f.flag==='crack'?'⚑ Cracking':f.flag==='pack'?'◈ Packing':'⊘ Partisan'}</span>`});
+      else h+=`<br><span style="color:#9ca3af">No flags</span>`;
       showTT(tt,h,e.point);
     });
-    m.on('mouseleave','fill-rc',()=>{hideTT(document.getElementById('tt-rf'));m.setFilter('hvr-rc',['==','NAME',''])});
-    m.on('click','fill-rc',e=>{const name=e.features[0]?.properties?.NAME;if(name)showRfPanel(name)});
-    rfSidebar();paintRf();
+
+    m.on('mouseleave','fill-rf-dist',()=>{
+      hideTT(tt);
+      m.setFilter('hvr-rf-dist',['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],-1]);
+    });
+
+    m.on('click','fill-rf-dist',e=>{
+      const props=e.features[0]?.properties; if(!props) return;
+      const dn=parseInt(props.DISTRICT||props.district||0,10);
+      showRfPanel(dn);
+      // Keep highlight on clicked district
+      m.setFilter('hvr-rf-dist',['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],dn]);
+    });
+
+    // Load initial district GeoJSON
+    await loadRfDistGeo(G.curRfCh);
+    updateRfDistSource();
+    rfSidebar();
+    paintRf();
   });
 }
 
@@ -983,47 +1256,131 @@ function getName(r){return(r.county_name||r.name||r.county||r.district_name||'')
 function rfSidebar(){
   const fs=flags(G.curRfCh);
   const cr=fs.filter(f=>f.flag==='crack'),pk=fs.filter(f=>f.flag==='pack'),pt=fs.filter(f=>f.flag==='partisan');
+  const mkRfRow=(type,color,label,count)=>{
+    const on=G.rfFilter===type;
+    return `<button onclick="rfFilterToggle('${type}')" style="
+      display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:7px;cursor:pointer;
+      font-size:.81rem;font-family:var(--font);width:100%;text-align:left;
+      border:2px solid ${on?color:'var(--border)'};
+      background:${on?color:'var(--sfc)'};
+      color:${on?'#fff':'var(--ink)'};
+      transition:all .15s;user-select:none">
+      <span style="width:9px;height:9px;border-radius:2px;flex-shrink:0;background:${on?'rgba(255,255,255,.7)':color}"></span>
+      <span style="flex:1;font-weight:600">${label}</span>
+      <span style="font-family:var(--mono);font-size:.95rem;font-weight:700;color:${on?'#fff':color}">${count}</span>
+      <span style="font-size:.63rem;opacity:.6;margin-left:2px">${on?'✕':'▶'}</span>
+    </button>`;
+  };
   document.getElementById('rf-counts').innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:5px;font-size:.8rem">
-      <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:var(--rep);display:inline-block;border-radius:2px"></span><span style="flex:1">Cracking</span><b>${cr.length}</b></div>
-      <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:var(--pack);display:inline-block;border-radius:2px"></span><span style="flex:1">Packing</span><b>${pk.length}</b></div>
-      <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:var(--warn);display:inline-block;border-radius:2px"></span><span style="flex:1">Overly Partisan</span><b>${pt.length}</b></div>
-    </div>`;
-  const uniq=fs.filter((f,i,a)=>a.findIndex(x=>x.district===f.district&&x.flag===f.flag)===i).slice(0,12);
-  document.getElementById('rf-mini').innerHTML=uniq.length?uniq.map(f=>`
-    <div style="display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:var(--r-sm);cursor:pointer;font-size:.79rem;transition:background .1s" onclick="showRfPanel('${getName(f)}')" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
-      <span style="width:7px;height:7px;border-radius:2px;flex-shrink:0;display:inline-block;background:${f.flag==='crack'?'var(--rep)':f.flag==='pack'?'var(--pack)':'var(--warn)'}"></span>
-      <span style="flex:1;color:var(--ink2)">${getName(f)||'District '+f.district}</span>
-      <span style="color:var(--ink3);font-size:.7rem">${f.flag}</span>
-    </div>`).join(''):'<div class="empty" style="padding:8px 0;text-align:left;font-size:.79rem">No flags detected</div>';
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${mkRfRow('crack','#B71C1C','⚑ Cracking',cr.length)}
+      ${mkRfRow('pack','#7C3AED','◈ Packing',pk.length)}
+      ${mkRfRow('partisan','#D97706','⊘ Overly Partisan',pt.length)}
+    </div>
+    ${G.rfFilter?`<div style="font-size:.67rem;color:var(--ink3);margin-top:6px;padding:0 2px">Showing ${G.rfFilter} only — click again to clear</div>`:''}`;
+
+  const filtered=G.rfFilter ? fs.filter(f=>f.flag===G.rfFilter) : fs;
+  // Deduplicate by district number + flag type (fix: was using f.district which is undefined)
+  const seen=new Set();
+  const uniq=filtered.filter(f=>{const k=distNum(f)+'|'+f.flag;if(seen.has(k))return false;seen.add(k);return true;}).slice(0,25);
+  const flagColor=fl=>fl==='crack'?'#B71C1C':fl==='pack'?'#7C3AED':'#D97706';
+  document.getElementById('rf-mini').innerHTML=uniq.length
+    ?uniq.map(f=>{
+        const dn=distNum(f);
+        return`<div onclick="rfZoomTo(${dn})" style="display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:var(--r-sm);cursor:pointer;font-size:.79rem;transition:background .1s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+          <span style="width:8px;height:8px;border-radius:2px;flex-shrink:0;background:${flagColor(f.flag)}"></span>
+          <span style="flex:1;color:var(--ink2);font-weight:600">District ${dn}</span>
+          <span style="font-size:.65rem;padding:2px 5px;border-radius:3px;background:${flagColor(f.flag)}22;color:${flagColor(f.flag)};font-weight:600">${f.flag}</span>
+        </div>`;
+      }).join('')
+    :'<div class="empty" style="padding:8px 0;text-align:left;font-size:.79rem">No flags for this type</div>';
+}
+
+function rfFilterToggle(type){
+  G.rfFilter = G.rfFilter===type ? null : type;
+  rfSidebar();
+  paintRf();
+}
+
+// Zoom to a specific district on the RF map and open its detail panel
+function rfZoomTo(dn){
+  const m=G.maps.rf;
+  if(!m||!G.mRdy.rf){showRfPanel(dn);return;}
+  const gj=_geoCache['rf_'+G.curRfCh];
+  if(gj){
+    const feat=gj.features.find(f=>parseInt(f.properties?.DISTRICT||f.properties?.district||0,10)===dn);
+    if(feat){
+      const coords=feat.geometry.type==='MultiPolygon'
+        ?feat.geometry.coordinates.flatMap(p=>p.flatMap(r=>r))
+        :feat.geometry.coordinates.flatMap(r=>r);
+      const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
+      m.fitBounds(
+        [[Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]],
+        {padding:90,maxZoom:11,duration:700}
+      );
+    }
+    // Highlight the district
+    m.setFilter('hvr-rf-dist',['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],dn]);
+  }
+  showRfPanel(dn);
 }
 
 function paintRf(){
-  const m=G.maps.rf;if(!m||!m.getLayer('fill-rc'))return;
+  const m=G.maps.rf; if(!m||!m.getLayer('fill-rf-dist')) return;
   const fs=flags(G.curRfCh);
-  const expr=['case'];const seen=new Set();
+  const activeFilter=G.rfFilter;
+  const expr=['case'];
+
+  // Build distNum → [flags] map
+  const flagMap={};
   fs.forEach(f=>{
-    const name=getName(f).toUpperCase();if(!name||seen.has(name))return;seen.add(name);
-    const c=f.flag==='crack'?'#B71C1C':f.flag==='pack'?'#7C3AED':'#D97706';
-    expr.push(['==',['upcase',['get','NAME']],name],c);
+    const dn=distNum(f); if(!dn) return;
+    if(!flagMap[dn]) flagMap[dn]=[];
+    if(!flagMap[dn].includes(f.flag)) flagMap[dn].push(f.flag);
+  });
+
+  Object.entries(flagMap).forEach(([dn,flist])=>{
+    const dnInt=parseInt(dn,10);
+    let c;
+    if(activeFilter){
+      c=flist.includes(activeFilter)
+        ?(activeFilter==='crack'?'#B71C1C':activeFilter==='pack'?'#7C3AED':'#D97706')
+        :'#D1D5DB';
+    } else {
+      if(flist.includes('crack'))      c='#B71C1C';
+      else if(flist.includes('pack'))  c='#7C3AED';
+      else                             c='#D97706';
+    }
+    expr.push(['==',['to-number',['coalesce',['get','DISTRICT'],['get','district']]],dnInt],c);
   });
   expr.push('#E5E7EB');
-  m.setPaintProperty('fill-rc','fill-color',expr);
+  m.setPaintProperty('fill-rf-dist','fill-color',expr);
+  m.setPaintProperty('fill-rf-dist','fill-opacity',0.88);
 }
 
-function showRfPanel(name){
+function showRfPanel(dn){
   const panel=document.getElementById('rp-rf');
   panel.classList.remove('closed');
   const ph=document.getElementById('rph-rf'),c=document.getElementById('rpc-rf');
-  const fs=flags(G.curRfCh).filter(f=>getName(f).toUpperCase()===name.toUpperCase());
-  if(!fs.length){ph.style.display='flex';ph.querySelector('.rph-txt').textContent='No flags for '+name;c.style.display='none';return}
-  ph.style.display='none';c.style.display='block';
-  const demog=findDemog(name);
+
+  const fs=flags(G.curRfCh).filter(f=>distNum(f)===dn);
+  // Full district record for demographics
+  const rec=G.D[G.curRfCh]?.find(r=>distNum(r)===dn);
+  const chLabel=G.curRfCh.charAt(0).toUpperCase()+G.curRfCh.slice(1);
+
+  if(!fs.length){
+    ph.style.display='flex';
+    ph.querySelector('.rph-txt').textContent=`${chLabel} District ${dn}: no gerrymandering flags detected`;
+    c.style.display='none';
+    return;
+  }
+  ph.style.display='none'; c.style.display='block';
+
   c.innerHTML=`
     <div class="ip-hd">
-      <div class="ip-tag">${G.curRfCh} district</div>
-      <div class="ip-name">${name}</div>
-      ${demog?.pop?`<div class="ip-pop">Pop. ${Number(demog.pop).toLocaleString()}</div>`:''}
+      <div class="ip-tag">${chLabel} District ${dn}</div>
+      <div class="ip-name">${getName(rec)||chLabel+' District '+dn}</div>
+      ${rec?.pop?`<div class="ip-pop">Pop. ${Number(rec.pop).toLocaleString()}</div>`:''}
     </div>`+
   fs.map(f=>`
     <div class="ip-sect">
@@ -1034,17 +1391,43 @@ function showRfPanel(name){
       </div>
       <div style="font-size:.83rem;color:var(--ink2);line-height:1.62">${flagEx(f)}</div>
     </div>`).join('<hr style="border:none;border-top:1px solid var(--border);margin:0 17px">');
-  if(demog)c.innerHTML+=`<div class="ip-sect"><div class="ip-sect-t">Demographics</div>${demogBars(demog)}</div>`;
+
+  if(rec) c.innerHTML+=`<div class="ip-sect"><div class="ip-sect-t">Demographics</div>${demogBars(rec)}</div>`;
 }
 
 function flagEx(f){
-  if(f.flag==='crack')return`${f.bvap.toFixed(1)}% of voting-age residents are Black, yet this district votes R+${Math.abs(f.dm).toFixed(1)}pp. With BVAP above 35%, there may be enough minority voters to elect a representative of their choice — current boundaries may be preventing that. Potential VRA Section 2 concern.`;
-  if(f.flag==='pack')return`${f.bvap.toFixed(1)}% BVAP with D+${f.dm.toFixed(1)}pp suggests heavy concentration of minority voters. These votes could influence adjacent competitive districts if spread differently.`;
-  return`A ${Math.abs(f.dm).toFixed(1)}pp ${f.dm>0?'Democratic':'Republican'} lean suggests this district was drawn to be non-competitive, limiting voter choice.`;
+  if(f.flag==='crack') return`${f.bvap.toFixed(1)}% of voting-age residents are Black, yet this district votes R+${Math.abs(f.dm).toFixed(1)}pp. With BVAP above 35%, there may be enough minority voters to elect a representative of their choice — current boundaries may be preventing that. Potential VRA Section 2 concern.`;
+  if(f.flag==='pack')  return`${f.bvap.toFixed(1)}% BVAP with D+${f.dm.toFixed(1)}pp suggests heavy concentration of minority voters into this district. These votes could influence adjacent competitive districts if distributed differently — a potential packing violation.`;
+  return `A ${Math.abs(f.dm).toFixed(1)}pp ${f.dm>0?'Democratic':'Republican'} lean suggests this district was drawn to be non-competitive, limiting meaningful voter choice.`;
 }
 
-// ════ MAP COMPARISON (FIXED) ═══════════════════════════════════════════
-// Each map has its own source ID; cross-highlighting and click both work
+// ════ MAP COMPARISON ══════════════════════════════════════════════════
+// Election-focused: two election dropdowns, click county for full comparison
+
+function buildCmpElDropdowns(sm){
+  // Populate both election dropdowns from summary data
+  ['cmp-ela','cmp-elb'].forEach((id,i)=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    sel.innerHTML=sm.map((e,j)=>`<option value="${e.election_id}" ${(i===0&&j===sm.length-2)||(i===1&&j===sm.length-1)?'selected':''}>${e.year||''} ${e.label||e.election_id}</option>`).join('');
+  });
+  G.cmpElA=document.getElementById('cmp-ela')?.value||null;
+  G.cmpElB=document.getElementById('cmp-elb')?.value||null;
+  cmpElUpd();
+}
+
+function cmpElUpd(){
+  const selA=document.getElementById('cmp-ela');
+  const selB=document.getElementById('cmp-elb');
+  if(!selA||!selB)return;
+  G.cmpElA=selA.value;
+  G.cmpElB=selB.value;
+  const lblA=selA.options[selA.selectedIndex]?.text||'Election A';
+  const lblB=selB.options[selB.selectedIndex]?.text||'Election B';
+  document.getElementById('cmp-la').textContent=lblA;
+  document.getElementById('cmp-lb').textContent=lblB;
+  if(G.mRdy.ca&&G.mRdy.cb)cmpPaint();
+}
+
 function initCmpMaps(){
   const mA=mkMap('map-ca'),mB=mkMap('map-cb');
   if(!mA||!mB)return;
@@ -1068,18 +1451,15 @@ function attachCmpEvents(myMap,mySrc,otherSrc,maps,otherKey,ttId){
   myMap.on('mousemove','fill-'+mySrc,e=>{
     const name=e.features[0]?.properties?.NAME;if(!name)return;
     myMap.setFilter('hvr-'+mySrc,['==','NAME',name]);
-    // Highlight on OTHER map
     const om=maps[otherKey];
-    if(om&&om.getLayer&&om.getLayer('hvr-'+otherSrc)){
-      om.setFilter('hvr-'+otherSrc,['==','NAME',name]);
-    }
-    showTT(tt,`<strong>${name}</strong><br><span style="font-size:.72rem;color:#9ca3af">Click to compare below</span>`,e.point);
+    if(om?.getLayer?.('hvr-'+otherSrc))om.setFilter('hvr-'+otherSrc,['==','NAME',name]);
+    showTT(tt,`<strong>${name} County</strong><br><span style="font-size:.72rem;color:#9ca3af">Click to compare below</span>`,e.point);
   });
   myMap.on('mouseleave','fill-'+mySrc,()=>{
     hideTT(tt);
     myMap.setFilter('hvr-'+mySrc,['==','NAME','']);
     const om=maps[otherKey];
-    if(om&&om.getLayer&&om.getLayer('hvr-'+otherSrc))om.setFilter('hvr-'+otherSrc,['==','NAME','']);
+    if(om?.getLayer?.('hvr-'+otherSrc))om.setFilter('hvr-'+otherSrc,['==','NAME','']);
   });
   myMap.on('click','fill-'+mySrc,e=>{
     const name=e.features[0]?.properties?.NAME;
@@ -1087,89 +1467,142 @@ function attachCmpEvents(myMap,mySrc,otherSrc,maps,otherKey,ttId){
   });
 }
 
-function cmpUpd(){
-  const a=document.getElementById('cmp-a')?.options[document.getElementById('cmp-a').selectedIndex]?.text||'';
-  const b=document.getElementById('cmp-b')?.options[document.getElementById('cmp-b').selectedIndex]?.text||'';
-  document.getElementById('cmp-la').textContent='Map A: '+a;
-  document.getElementById('cmp-lb').textContent='Map B: '+b;
-  if(G.mRdy.ca&&G.mRdy.cb)cmpPaint();
-}
-
-function cmpPaint(){
-  const metric=document.getElementById('cmp-m')?.value||'pct_bvp';
-  const chA=getCmpChamber('cmp-a'),chB=getCmpChamber('cmp-b');
-  pMetric(G.maps.ca,G.D[chA]||[],metric,'src-ca');
-  pMetric(G.maps.cb,G.D[chB]||[],metric,'src-cb');
-}
-
-function getCmpChamber(selId){
-  const sel=document.getElementById(selId);if(!sel)return'senate';
-  const txt=sel.options[sel.selectedIndex]?.text?.toLowerCase()||'senate';
-  if(txt.includes('house'))return'house';
-  if(txt.includes('congress'))return'congress';
-  return'senate';
-}
-
-function pMetric(m,rows,metric,srcId){
+// Paint map by election margin for a given election ID
+function cmpPaintElection(m,elId,srcId){
   if(!m||!m.getLayer('fill-'+srcId))return;
-  const vals=rows.map(r=>+(r[metric]||0)).filter(v=>!isNaN(v));
-  const maxV=Math.max(...vals,1);
+  const rows=G.E.filter(r=>r.election_id===elId);
   const expr=['case'];
   rows.forEach(r=>{
-    const name=getName(r).toUpperCase();if(!name)return;
-    const v=+(r[metric]||0);const norm=v/maxV;
+    const name=(r.county||'').toUpperCase();if(!name)return;
+    const margin=+(r.margin||0);
+    // Dem positive = blue, Rep positive = red
     let c;
-    if(metric==='partisan'){
-      const blue=Math.round(40+norm*180);c=`rgb(${Math.round(200-norm*160)},${Math.round(200-norm*120)},${blue})`;
-    }else{
-      // Purple gradient for BVAP/minority
-      c=`hsl(270,${30+norm*55}%,${85-norm*28}%)`;
-    }
+    if(margin>20)c='#1565C0';
+    else if(margin>10)c='#1976D2';
+    else if(margin>3)c='#42A5F5';
+    else if(margin>-3)c='#90A4AE'; // toss-up
+    else if(margin>-10)c='#EF9A9A';
+    else if(margin>-20)c='#EF5350';
+    else c='#B71C1C';
     expr.push(['==',['upcase',['get','NAME']],name],c);
   });
   expr.push('#E5E7EB');
   m.setPaintProperty('fill-'+srcId,'fill-color',expr);
 }
 
+function cmpPaint(){
+  cmpPaintElection(G.maps.ca,G.cmpElA,'src-ca');
+  cmpPaintElection(G.maps.cb,G.cmpElB,'src-cb');
+}
+
+// Full county comparison panel
 function showCmpDet(name){
   const det=document.getElementById('cmp-det');
-  const metric=document.getElementById('cmp-m')?.value||'pct_bvp';
-  const chA=getCmpChamber('cmp-a'),chB=getCmpChamber('cmp-b');
-  // Try to find district record by county name — flexible lookup
-  const findRow=(ch,nm)=>G.D[ch].find(r=>{
-    const rn=getName(r).toUpperCase();
-    return rn===nm.toUpperCase()||rn.includes(nm.toUpperCase())||nm.toUpperCase().includes(rn);
-  });
-  const rA=findRow(chA,name),rB=findRow(chB,name);
-  const mls={'pct_bvp':'Black VAP %','pct_hvp':'Hispanic VAP %','pct_avp':'Asian VAP %','pct_bp_':'Minority VAP %','partisan':'Partisan Lean % Dem','pop':'Population'};
-  const selATxt=document.getElementById('cmp-a')?.options[document.getElementById('cmp-a').selectedIndex]?.text||'Map A';
-  const selBTxt=document.getElementById('cmp-b')?.options[document.getElementById('cmp-b').selectedIndex]?.text||'Map B';
-  det.innerHTML=`<div style="padding:12px 16px">
-    <div style="font-size:.88rem;font-weight:700;color:var(--ink);margin-bottom:10px">${name} County — Comparison</div>
-    <table class="ctbl">
-      <thead><tr><th>Metric</th><th>${selATxt}</th><th>${selBTxt}</th><th>Change</th><th>Note</th></tr></thead>
-      <tbody>${Object.keys(mls).map(m2=>{
-        const vA=rA?+(rA[m2]||0):null,vB=rB?+(rB[m2]||0):null;
-        const d=(vA!==null&&vB!==null&&!isNaN(vA)&&!isNaN(vB))?vB-vA:null;
-        const fmt=v=>v===null?'—':m2==='pop'?Number(v).toLocaleString():v.toFixed(1)+'%';
-        const flagged=d!==null&&m2!=='pop'&&((vA<50&&vB>=50)||(vA>=50&&vB<50));
-        const note=flagged?(vB>=50?'Crossed 50% threshold ⚑':'Dropped below 50% ⚑'):'';
-        return`<tr ${flagged?'style="background:#FFF0F0"':''}>
-          <td>${mls[m2]}</td>
-          <td>${rA?fmt(vA):'<span style="color:var(--ink4)">N/A</span>'}</td>
-          <td>${rB?fmt(vB):'<span style="color:var(--ink4)">N/A</span>'}</td>
-          <td class="${d===null?'':d>0?'cup':d<0?'cdn':''}">${d===null?'—':(m2==='pop'?(d>0?'+':'')+Number(d).toLocaleString():(d>0?'+':'')+d.toFixed(1)+'%')}</td>
-          <td style="font-size:.75rem;color:${flagged?'var(--red)':'var(--ink3)'}">${note}</td>
-        </tr>`
-      }).join('')}</tbody>
-    </table>
+  const elA=G.cmpElA,elB=G.cmpElB;
+  const selA=document.getElementById('cmp-ela');
+  const selB=document.getElementById('cmp-elb');
+  const lblA=selA?.options[selA.selectedIndex]?.text||elA||'Election A';
+  const lblB=selB?.options[selB.selectedIndex]?.text||elB||'Election B';
+  const nameU=name.toUpperCase();
+
+  // Election results for this county
+  const rA=G.E.find(r=>r.election_id===elA&&(r.county||'').toUpperCase()===nameU);
+  const rB=G.E.find(r=>r.election_id===elB&&(r.county||'').toUpperCase()===nameU);
+
+  // Demographics from district data
+  const findDem=(nm)=>{
+    for(const ch of['senate','house','congress']){
+      const r=G.D[ch].find(d=>(getName(d)||'').toUpperCase()===nm||(getName(d)||'').toUpperCase().includes(nm));
+      if(r)return r;
+    }return null;
+  };
+  const demog=findDem(nameU);
+
+  // ACS socioeconomic data
+  const acs=G.ACS.find(r=>(r.county||'').toUpperCase()===nameU||(r.county||'').toUpperCase().includes(nameU));
+
+  // Format helpers
+  const pct=v=>(v==null||isNaN(+v))?'—':((+v)*100).toFixed(1)+'%';
+  const pctDir=v=>(v==null||isNaN(+v))?'—':((+v)>0?'+':'')+((+v)*100).toFixed(1)+'%';
+  const num=v=>(v==null||isNaN(+v))?'—':Number(+v).toLocaleString();
+  const usd=v=>(v==null||isNaN(+v))?'—':'$'+Number(+v).toLocaleString();
+  const mg=v=>(v==null||isNaN(+v))?'—':((+v)>0?'<span style="color:var(--dem)">D+'+Math.abs(+v).toFixed(1)+'</span>':'<span style="color:var(--rep)">R+'+Math.abs(+v).toFixed(1)+'</span>');
+  const swg=v=>{
+    if(v==null||isNaN(+v))return'—';
+    const n=+v;
+    const c=n>0?'var(--dem)':'var(--rep)';
+    return`<span style="color:${c}">${n>0?'▲':'▼'}${Math.abs(n).toFixed(1)}pp</span>`;
+  };
+
+  const marginA=rA?+(rA.margin||0):null;
+  const marginB=rB?+(rB.margin||0):null;
+  const swing=(marginA!==null&&marginB!==null)?marginB-marginA:null;
+
+  det.innerHTML=`
+  <div style="display:flex;flex-direction:column;width:100%;height:100%">
+    <!-- County header + swing banner -->
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap">
+      <div style="font-size:1rem;font-weight:700;color:var(--ink)">${name} County</div>
+      ${demog?.pop?`<div style="font-size:.78rem;color:var(--ink3)">Pop. ${num(demog.pop)}</div>`:''}
+      ${swing!==null?`
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <div style="font-size:.72rem;color:var(--ink3)">Swing ${lblA.split(' ').slice(-2).join(' ')} → ${lblB.split(' ').slice(-2).join(' ')}:</div>
+          <div style="font-size:1rem;font-weight:700;padding:3px 10px;border-radius:5px;
+            background:${swing>0?'#dbeafe':swing<0?'#fee2e2':'#f3f4f6'};
+            color:${swing>0?'var(--dem)':swing<0?'var(--rep)':'var(--ink3)'}">
+            ${swing>0?'▲ Dem +':'▼ Rep +'}${Math.abs(swing).toFixed(1)}pp
+          </div>
+        </div>`:''}
+    </div>
+
+    <!-- Content columns -->
+    <div style="display:flex;flex:1;overflow:hidden">
+
+      <!-- Election results column -->
+      <div style="flex:1.2;padding:10px 14px;border-right:1px solid var(--border);min-width:0;overflow-y:auto">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:7px">Election Results</div>
+        <table class="ctbl" style="font-size:.79rem">
+          <thead><tr><th>Metric</th><th>${lblA.split(' ').slice(-3).join(' ')}</th><th>${lblB.split(' ').slice(-3).join(' ')}</th><th>Δ Change</th></tr></thead>
+          <tbody>
+            <tr><td>Margin</td><td>${mg(marginA)}</td><td>${mg(marginB)}</td><td>${swg(swing)}</td></tr>
+            ${rA?.dem_votes||rB?.dem_votes?`<tr><td>Dem Votes</td><td>${num(rA?.dem_votes)}</td><td>${num(rB?.dem_votes)}</td><td style="color:var(--dem)">${rA?.dem_votes&&rB?.dem_votes?(rB.dem_votes>rA.dem_votes?'<span class="cup">+':'<span class="cdn">')+Math.abs(rB.dem_votes-rA.dem_votes).toLocaleString()+'</span>':'—'}</td></tr>`:''}
+            ${rA?.rep_votes||rB?.rep_votes?`<tr><td>Rep Votes</td><td>${num(rA?.rep_votes)}</td><td>${num(rB?.rep_votes)}</td><td>${rA?.rep_votes&&rB?.rep_votes?(rB.rep_votes>rA.rep_votes?'<span class="cup">+':'<span class="cdn">')+Math.abs(rB.rep_votes-rA.rep_votes).toLocaleString()+'</span>':'—'}</td></tr>`:''}
+            ${rA?.total_votes||rB?.total_votes?`<tr style="font-weight:600"><td>Total Turnout</td><td>${num(rA?.total_votes)}</td><td>${num(rB?.total_votes)}</td><td>${rA?.total_votes&&rB?.total_votes?(rB.total_votes>rA.total_votes?'<span class="cup">▲ +':'<span style="color:var(--ink3)">▼ ')+Math.abs(rB.total_votes-rA.total_votes).toLocaleString()+'</span>':'—'}</td></tr>`:''}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Demographics column -->
+      ${demog?`<div style="flex:1;padding:10px 14px;border-right:1px solid var(--border);min-width:0;overflow-y:auto">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:7px">Demographics</div>
+        ${demogBars(demog)}
+      </div>`:''}
+
+      <!-- ACS Socioeconomic column -->
+      ${acs?`<div style="flex:1;padding:10px 14px;min-width:0;overflow-y:auto">
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-bottom:7px">Socioeconomic (ACS)</div>
+        <table class="ctbl" style="font-size:.79rem">
+          <tbody>
+            ${acs.median_hh_income?`<tr><td>Median Household Income</td><td>${usd(acs.median_hh_income)}</td></tr>`:''}
+            ${acs.pct_college!=null?`<tr><td>College Educated</td><td>${pct(acs.pct_college)}</td></tr>`:''}
+            ${acs.pct_poverty!=null?`<tr><td>Poverty Rate</td><td>${pct(acs.pct_poverty)}</td></tr>`:''}
+            ${acs.median_age?`<tr><td>Median Age</td><td>${(+acs.median_age).toFixed(1)} yrs</td></tr>`:''}
+            ${acs.pct_owner_occupied!=null?`<tr><td>Home Ownership</td><td>${pct(acs.pct_owner_occupied)}</td></tr>`:''}
+            ${acs.pct_broadband!=null?`<tr><td>Broadband Access</td><td>${pct(acs.pct_broadband)}</td></tr>`:''}
+          </tbody>
+        </table>
+      </div>`:`<div style="flex:1;padding:10px 14px;min-width:0;display:flex;align-items:center;justify-content:center">
+        <div style="font-size:.78rem;color:var(--ink3);text-align:center">ACS data not loaded.<br><span style="font-size:.72rem">Run scripts/fetch_acs_data.py to enable</span></div>
+      </div>`}
+    </div>
   </div>`;
 }
 
 function expCSV(){
-  const ch=getCmpChamber('cmp-a');const rows=G.D[ch];
-  if(!rows?.length){alert('No data loaded');return}
-  const h=['district','county_name','pct_bvp','pct_hvp','pct_bp_','partisan','pop'];
+  // Export election data for selected elections
+  const rows=G.E.filter(r=>r.election_id===G.cmpElA||r.election_id===G.cmpElB);
+  if(!rows?.length){alert('No election data loaded');return}
+  const h=['election_id','county','year','label','margin','dem_votes','rep_votes','total_votes'];
   const csv=[h.join(','),...rows.map(r=>h.map(k=>r[k]??'').join(','))].join('\n');
   dlBlob(new Blob([csv],{type:'text/csv'}),'fdga-compare.csv');
 }
@@ -1203,24 +1636,58 @@ function aiAsk(q){
   aiSend();
 }
 
+// Format NL2SQL response into a pretty table if results look tabular
+function renderChatAnswer(raw){
+  if(!raw)return'No response.';
+  // Detect if answer contains a fenced code block with table data
+  const sqlMatch=raw.match(/SQL:\s*`([^`]+)`/i);
+  const sql=sqlMatch?sqlMatch[1]:'';
+  // Look for csv/table data between triple backticks
+  const codeMatch=raw.match(/```[\s\S]*?\n([\s\S]*?)```/);
+  if(codeMatch){
+    const lines=codeMatch[1].trim().split('\n').filter(Boolean);
+    if(lines.length>=2){
+      const hdrs=lines[0].split(',').map(h=>h.trim().replace(/"/g,''));
+      const rows=lines.slice(1).map(l=>l.split(',').map(v=>v.trim().replace(/"/g,'')));
+      const tbl=`<table class="ctbl" style="width:100%;margin-top:8px;font-size:.8rem">
+        <thead><tr>${hdrs.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+      const summary=raw.replace(/```[\s\S]*?```/,'').replace(/SQL:\s*`[^`]+`/i,'').trim();
+      return (sql?`<div style="font-size:.72rem;font-family:var(--mono);color:var(--ink3);margin-bottom:6px;word-break:break-all">▶ ${sql}</div>`:'')
+           + (summary?`<div style="margin-bottom:6px">${summary.replace(/\n/g,'<br>')}</div>`:'')
+           + tbl;
+    }
+  }
+  // Plain answer — render markdown bold and newlines
+  let html=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\n/g,'<br>');
+  if(sql)html=`<div style="font-size:.72rem;font-family:var(--mono);color:var(--ink3);margin-bottom:6px;word-break:break-all">▶ ${sql}</div>`+html;
+  return html;
+}
+
 async function aiSend(){
   const inp=document.getElementById('ai-inp');
   const q=inp.value.trim();if(!q||aiActive)return;
   inp.value='';aiActive=true;
   document.getElementById('ai-send').disabled=true;
   addChatMsg('u',q);
-  const thEl=addChatMsg('b','Analyzing…',true);
-  const ctx=buildCtx()+q;aiH.push({role:'user',content:ctx});
+  const thEl=addChatMsg('b','Querying data…',true);
+  const ctx=buildCtx();
+  aiH.push({role:'user',content:q});
   try{
-    const res=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:ctx,mode:'chat',history:aiH.slice(-8)})});
+    // Chat uses lightweight NL→SQL path — no crewAI agents
+    const res=await fetch('/chat/nl2sql',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question:q,context:ctx,history:aiH.slice(-6)})});
     if(!res.ok)throw new Error(res.status);
     const d=await res.json();
     const ans=d.answer||'No response.';
     aiH.push({role:'assistant',content:ans});
     thEl.querySelector('.ai-bub').classList.remove('th');
-    thEl.querySelector('.ai-bub').innerHTML=ans.replace(/\n/g,'<br>');
+    thEl.querySelector('.ai-bub').innerHTML=renderChatAnswer(ans);
   }catch(e){
-    thEl.querySelector('.ai-bub').textContent='AI service unavailable. Ensure the backend is running with an LLM provider configured.';
+    thEl.querySelector('.ai-bub').innerHTML='<span style="color:var(--rep)">⚠ Chat unavailable.</span> Make sure the backend is running and has the <code>/chat/nl2sql</code> endpoint (see <em>chat_nl2sql_endpoint.py</em>).';
   }
   aiActive=false;document.getElementById('ai-send').disabled=false;
 }
@@ -1329,7 +1796,34 @@ function buildCtx(){
   const l=G.S[G.S.length-1];
   const sen=G.D.senate,mm=sen.filter(r=>r.pct_bvp>50).length;
   const cr=flags('senate').filter(f=>f.flag==='crack').length,pk=flags('senate').filter(f=>f.flag==='pack').length;
-  return`[DATA CONTEXT: Georgia redistricting analysis. ${G.S.length} elections loaded (${G.S[0]?.year||'?'}–${l?.year||'?'}). Senate: ${sen.length} districts, ${mm} majority Black VAP, ${cr} cracking indicators, ${pk} packing indicators. Latest statewide: ${l?.label||'?'} → ${l?.margin>0?'D':'R'}+${Math.abs(l?.margin||0).toFixed(1)}pp. Princeton Gerrymander: F racial representation, C partisan fairness.] `;
+  const stats=`Georgia redistricting: ${G.S.length} elections (${G.S[0]?.year||'?'}–${l?.year||'?'}), Senate ${sen.length} districts (${mm} maj-Black VAP, ${cr} cracking, ${pk} packing), House ${G.D.house.length} districts, Congress ${G.D.congress.length} districts. Latest: ${l?.label||'?'} → ${l?.margin>0?'D':'R'}+${Math.abs(l?.margin||0).toFixed(1)}pp.`;
+  const schema=`
+SCHEMA:
+Tables: senate_districts, house_districts, congress_districts, district_stats
+Key columns (same across chamber tables):
+  district_num       INTEGER  — district number
+  map_version        TEXT     — e.g. 'senate_enacted_2024', 'house_enacted_2024', 'congress_enacted_2024'
+  chamber            TEXT     — 'Senate', 'House', 'Congress'
+  legal_status       TEXT
+  pct_black_vap      FLOAT    — 0.0–1.0 (multiply ×100 for %)
+  pct_hispanic_vap   FLOAT    — 0.0–1.0
+  pct_asian_vap      FLOAT    — 0.0–1.0
+  pct_bipoc_vap      FLOAT    — 0.0–1.0 (total minority VAP)
+  is_majority_black  BOOLEAN
+  is_majority_minority BOOLEAN
+  dem_pct_avg        FLOAT    — 0.0–1.0 average Democratic vote share
+  total_pop          INTEGER
+  total_vap          INTEGER
+  partisan_lean      TEXT     — CATEGORICAL: 'Strong D' | 'Lean D' | 'Toss-up' | 'Lean R' | 'Strong R'
+                               DO NOT compare as a number. Use: partisan_lean IN ('Strong D','Lean D') for Dem-leaning.
+                               DO NOT cast to DECIMAL — it will fail. Use LIKE or IN comparisons only.
+
+Example correct queries:
+  Democrat-leaning: WHERE partisan_lean IN ('Strong D', 'Lean D')
+  Republican-leaning: WHERE partisan_lean IN ('Strong R', 'Lean R')
+  High BVAP: WHERE pct_black_vap > 0.5 (NOT 50 — values are 0-1 scale)
+  map_version examples: 'senate_enacted_2024', 'house_enacted_2024', 'congress_enacted_2024'`;
+  return `[DATA CONTEXT: ${stats}${schema}] `;
 }
 
 // ════ DATA PAGE ════════════════════════════════════════════════════════
